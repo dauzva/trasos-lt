@@ -1,6 +1,3 @@
-Okay, here is the `navigationData` structure with all visible category, item, and subcategory names translated into standard Lithuanian (using proper Lithuanian characters like ą, č, ę, į, š, ų, ū, ž), while keeping the internal `slug` values in ASCII (using only basic Latin characters, numbers, and hyphens).
-
-```javascript
 import { Leaf, Sprout, TreePine, Shield } from 'lucide-react';
 
 export const navigationData = {
@@ -526,4 +523,3 @@ export const navigationData = {
     ]
   }
 };
-```
