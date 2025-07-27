@@ -1,6 +1,6 @@
 // netlify/functions/generate-blog.js
 import OpenAI from 'openai';
-import { neon } from '@neondatabase/serverless';
+import { neon } from '@netlify/neon';
 
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
@@ -12,7 +12,7 @@ const openai = new OpenAI({
 });
 
 // Initialize Neon client
-const sql = neon(process.env.NETLIFY_DATABASE_URL);
+const sql = neon();
 
 // Available categories for random selection (ASCII-compatible)
 import { allCategorySlugs } from '../../src/data/category-mapping.js';
@@ -113,4 +113,3 @@ Start with a main heading (# Title) and include several subheadings (## and ###)
     res.status(500).json({ error: error.message });
   }
 }
-

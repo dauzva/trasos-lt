@@ -1,8 +1,8 @@
 // netlify/functions/get-posts.js
-import { neon } from '@neondatabase/serverless';
+import { neon } from '@netlify/neon';
 
 // Initialize Neon client
-const sql = neon(process.env.NETLIFY_DATABASE_URL);
+const sql = neon();
 
 export default async function handler(req, res) {
   try {
@@ -73,4 +73,3 @@ export default async function handler(req, res) {
     });
   }
 }
-
