@@ -1,238 +1,12 @@
 import { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom' // Ensure react-router-dom is installed
-import CategoryPage from './CategoryPage' // Ensure this component exists
-import { ChevronDown, Menu, X, Search, Leaf, Sprout, TreePine, Shield } from 'lucide-react'
-import { Button } from '@/components/ui/button.jsx' // Ensure this component/path exists
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import CategoryPage from './CategoryPage'
+import PostPage from './PostPage'
+import { Menu, X, Search, Leaf, Shield } from 'lucide-react'
+import { Button } from '@/components/ui/button.jsx'
+import { DropdownMenu } from './components/Navigation'
+import { navigationData } from './data/categories'
 import './App.css'
-
-const navigationData = {
-  "Trąšos": {
-    icon: Leaf,
-    categories: [
-      {
-        title: "Pagal augalą",
-        items: [
-          "Vaismedžiams",
-          "Daržovėms",
-          "Gėlėms",
-          "Uogakrūmiams",
-          "Vejai",
-          "Dekoratyviniams augalams",
-          "Kambarinėms gėlėms",
-        ]
-      },
-      {
-        title: "Pagal formą",
-        items: [
-          "Skystos trąšos",
-          "Granuliuotos trąšos",
-          "Birios trąšos",
-          "Lazdelės",
-          "Tabletės"
-        ]
-      },
-      {
-        title: "Pagal veikliąją medžiagą",
-        items: [
-          "Azotinės",
-          "Fosforo",
-          "Kalio",
-          "Kompleksinės (NPK)",
-          "Mikroelementų",
-          "Organinės",
-          "Mineralinės",
-          "Biostimuliatoriai",
-          "Bakterinės",
-          "Organinės-mineralinės"
-        ]
-      }
-    ]
-  },
-  "Sėklos": {
-    icon: Sprout,
-    categories: [
-      {
-        title: "Pagal augalų tipą",
-        items: [
-          "Daržovių sėklos",
-          "Žolelių sėklos",
-          "Gėlių sėklos",
-          "Javų sėklos",
-          "Ankštinių augalų sėklos",
-          "Aliejinių augalų sėklos",
-          "Pašarinių augalų sėklos"
-        ]
-      },
-      {
-        title: "Pagal sėklos kategoriją",
-        items: [
-          "Sertifikuotos",
-          "Ekologiškos",
-          "GMO-ne",
-          "Beicuotos",
-          "Nekategorizuotos"
-        ]
-      },
-      {
-        title: "Pagal auginimo būdą",
-        items: [
-          "Atviram gruntui",
-          "Šiltnamiams"
-        ]
-      }
-    ]
-  },
-  "Sodinukai": {
-    icon: TreePine,
-    categories: [
-      {
-        title: "Pagal augalų tipą",
-        items: [
-          "Vaismedžių sodinukai",
-          "Uogakrūmiai",
-          "Dekoratyviniai augalai",
-          "Daržovių sodinukai",
-          "Miško sodinukai"
-        ]
-      },
-      {
-        title: "Pagal auginimo būdą",
-        items: [
-          "Atviram gruntui",
-          "Šiltnamiams",
-          "Vazonėliuose",
-          "Plikomis šaknimis"
-        ]
-      },
-      {
-        title: "Pagal amžių",
-        items: [
-          "Vienmečiai",
-          "Dvimečiai",
-          "Daugiau nei dvimečiai"
-        ]
-      },
-      {
-        title: "Pagal kilmę",
-        items: [
-          "Vietinės veislės",
-          "Egzotiniai sodinukai"
-        ]
-      }
-    ]
-  },
-  "Apsaugos priemonės augalams": {
-    icon: Shield,
-    categories: [
-      {
-        title: "Pagal kenkėją/ligą",
-        items: [
-          "Nuo kenkėjų",
-          "Nuo ligų",
-          "Nuo piktžolių",
-          "Nuo graužikų"
-        ]
-      },
-      {
-        title: "Pagal veikimo būdą",
-        items: [
-          "Kontaktiniai",
-          "Sistemininiai",
-          "Translaminariniai",
-          "Fumigantai"
-        ]
-      },
-      {
-        title: "Pagal kilmę",
-        items: [
-          "Ekologiškos priemonės",
-          "Cheminės priemonės"
-        ]
-      },
-      {
-        title: "Pagal taikymo būdą",
-        items: [
-          "Purškimui",
-          "Dirvožemiui",
-          "Sėklų beicavimui",
-          "Rūko generatoriai"
-        ]
-      },
-      {
-        title: "Fizinės apsaugos",
-        items: [
-          "Šiltnamių plėvelės",
-          "Tinkliukai",
-          "Agroplėvelės",
-          "Mulčias",
-          "Apsauginės dangos"
-        ]
-      }
-    ]
-  }
-}
-
-function DropdownMenu({ title, data, isOpen, onToggle, closeDropdowns }) {
-  const IconComponent = data.icon
-  return (
-    <div className="relative group"
-      // Optional: Keep hover behavior if desired
-      //onMouseEnter={() => onToggle(true)}
-      //onMouseLeave={() => onToggle(false)}
-    >
-      <button
-        onClick={() => onToggle(!isOpen)} // Toggle on button click
-        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 font-medium"
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-      >
-        <IconComponent size={18} />
-        <span>{title}</span>
-        <ChevronDown
-          size={16}
-          className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-      {isOpen && (
-        <div
-          className="absolute top-full left-0 mt-2 w-96 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden"
-          // Optional: Close dropdown if clicking inside the dropdown content area (might conflict with links)
-          // onClick={(e) => e.stopPropagation()}
-		  onMouseEnter={() => onToggle(true)}
-      		onMouseLeave={() => onToggle(false)}
-        >
-          <div className="p-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <IconComponent size={20} className="text-green-600" />
-              {title}
-            </h3>
-            <div className="space-y-4">
-              {data.categories.map((category, categoryIndex) => (
-                <div key={categoryIndex} className="border-l-2 border-green-200 pl-3">
-                  <h4 className="font-medium text-gray-700 mb-2 text-sm uppercase tracking-wide">
-                    {category.title}
-                  </h4>
-                  <div className="grid grid-cols-1 gap-1">
-                    {category.items.map((item, itemIndex) => (
-                      <Link
-                        key={itemIndex}
-                        to={`/${title.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 px-2 py-1 rounded transition-colors duration-150 block" // Added block class
-                        onClick={closeDropdowns}
-                      >
-                        {item}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 
 function MobileMenu({ isOpen, onClose }) {
   return (
@@ -266,14 +40,14 @@ function MobileMenu({ isOpen, onClose }) {
                       </h4>
                       <div className="space-y-1">
                         {category.items.map((item, itemIndex) => (
-                          <a
+                          <Link
                             key={itemIndex}
-                            href={`#${title.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, '-')}`}
+                            to={`/${title.toLowerCase()}/${item.slug}`}
                             className="block text-sm text-gray-600 hover:text-green-600 py-1 transition-colors"
                             onClick={onClose}
                           >
-                            {item}
-                          </a>
+                            {item.name}
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -440,6 +214,8 @@ function App() {
             </main>
           } />
           <Route path="/:mainCategory/:subCategory" element={<CategoryPage />} />
+          <Route path="/:mainCategory/:subCategory/:subSubCategory" element={<CategoryPage />} />
+          <Route path="/post/:postId" element={<PostPage />} />
         </Routes>
         {/* Footer */}
         <footer className="bg-gray-800 text-white py-8 mt-12">
