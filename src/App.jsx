@@ -6,6 +6,7 @@ import { Menu, X, Search, Leaf, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
 import { DropdownMenu } from './components/Navigation'
 import { navigationData } from './data/categories'
+import { DisplayAd, MultiplexAd } from './components/GoogleAds'
 import './App.css'
 
 function MobileMenu({ isOpen, onClose }) {
@@ -144,6 +145,11 @@ function App() {
                   Naršykite kategorijas aukščiau esančiame meniu arba naudokite paiešką.
                 </p>
               </div>
+              
+              {/* Display Ad */}
+              <div className="mb-12">
+                <DisplayAd />
+              </div>
               {/* Category Cards */}
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {Object.entries(navigationData).map(([title, data]) => {
@@ -210,6 +216,11 @@ function App() {
                     </p>
                   </div>
                 </div>
+              </div>
+              
+              {/* Multiplex Ad */}
+              <div className="mb-12">
+                <MultiplexAd />
               </div>
             </main>
           } />

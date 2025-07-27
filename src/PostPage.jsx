@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Clock, Tag, Share2, BookOpen } from 'lucide-react'
 import { getPostById, getAllPosts } from './data/posts'
 import PostCard from './components/PostCard'
+import { InArticleAd, DisplayAd } from './components/GoogleAds'
 
 function PostPage() {
   const { postId } = useParams()
@@ -209,6 +210,9 @@ function PostPage() {
             </p>
           </div>
 
+          {/* In-Article Ad */}
+          <InArticleAd />
+
           {/* Content */}
           {post.content && (
             <div className="prose prose-lg max-w-none">
@@ -237,6 +241,11 @@ function PostPage() {
           )}
         </div>
       </article>
+
+      {/* Display Ad */}
+      <div className="mt-8">
+        <DisplayAd />
+      </div>
 
       {/* Related posts */}
       {relatedPosts.length > 0 && (
