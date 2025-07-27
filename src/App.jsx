@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import CategoryPage from './CategoryPage'
 import PostPage from './PostPage'
+import RecentPosts from './components/RecentPosts'
 import { Menu, X, Search, Leaf, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
 import { DropdownMenu } from './components/Navigation'
@@ -150,6 +151,10 @@ function App() {
               <div className="mb-12">
                 <DisplayAd />
               </div>
+              
+              {/* Recent Posts */}
+              <RecentPosts />
+              
               {/* Category Cards */}
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {Object.entries(navigationData).map(([title, data]) => {

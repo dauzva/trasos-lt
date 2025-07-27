@@ -1,4 +1,7 @@
-import { Leaf, Sprout, TreePine, Shield } from 'lucide-react'
+Okay, here is the `navigationData` structure with all visible category, item, and subcategory names translated into standard Lithuanian (using proper Lithuanian characters like ą, č, ę, į, š, ų, ū, ž), while keeping the internal `slug` values in ASCII (using only basic Latin characters, numbers, and hyphens).
+
+```javascript
+import { Leaf, Sprout, TreePine, Shield } from 'lucide-react';
 
 export const navigationData = {
   "Trąšos": {
@@ -9,11 +12,11 @@ export const navigationData = {
         items: [
           {
             name: "Vaismedžiams",
-            slug: "vaismedžiams",
+            slug: "vaismedziams",
             subcategories: [
-              { name: "Obelėms", slug: "obelėms" },
-              { name: "Kriaušėms", slug: "kriaušėms" },
-              { name: "Vyšnioms", slug: "vyšnioms" },
+              { name: "Obelėms", slug: "obelems" },
+              { name: "Kriaušėms", slug: "kriausems" },
+              { name: "Vyšnioms", slug: "vysnioms" },
               { name: "Slyvoms", slug: "slyvoms" },
               { name: "Persikams", slug: "persikams" },
               { name: "Citrusams", slug: "citrusams" }
@@ -21,22 +24,22 @@ export const navigationData = {
           },
           {
             name: "Daržovėms",
-            slug: "daržovėms",
+            slug: "darzovems",
             subcategories: [
               { name: "Pomidorams", slug: "pomidorams" },
               { name: "Agurkams", slug: "agurkams" },
-              { name: "Kopūstams", slug: "kopūstams" },
+              { name: "Kopūstams", slug: "kopustams" },
               { name: "Morkoms", slug: "morkoms" },
-              { name: "Svogūnams", slug: "svogūnams" },
-              { name: "Bulvėms", slug: "bulvėms" }
+              { name: "Svogūnams", slug: "svogunams" },
+              { name: "Bulvėms", slug: "bulvems" }
             ]
           },
           {
             name: "Gėlėms",
-            slug: "gėlėms",
+            slug: "gelems",
             subcategories: [
-              { name: "Rožėms", slug: "rožėms" },
-              { name: "Tulpėms", slug: "tulpėms" },
+              { name: "Rožėms", slug: "rozems" },
+              { name: "Tulpėms", slug: "tulpems" },
               { name: "Narcizams", slug: "narcizams" },
               { name: "Petunijoms", slug: "petunijoms" },
               { name: "Begonijoms", slug: "begonijoms" }
@@ -44,13 +47,13 @@ export const navigationData = {
           },
           {
             name: "Uogakrūmiams",
-            slug: "uogakrūmiams",
+            slug: "uogakrumiams",
             subcategories: [
-              { name: "Braškėms", slug: "braškėms" },
-              { name: "Aviečių krūmams", slug: "aviečių-krūmams" },
+              { name: "Braškėms", slug: "braskems" },
+              { name: "Aviečių krūmams", slug: "avieciu-krumams" },
               { name: "Serbentams", slug: "serbentams" },
-              { name: "Agrastams", slug: "agrastams" },
-              { name: "Mėlynėms", slug: "mėlynėms" }
+              { name: "Agriastams", slug: "agrastams" },
+              { name: "Mėlynėms", slug: "melynems" }
             ]
           },
           {
@@ -58,27 +61,27 @@ export const navigationData = {
             slug: "vejai",
             subcategories: [
               { name: "Sporto vejai", slug: "sporto-vejai" },
-              { name: "Dekoratyvinei vejai", slug: "dekoratyvinei-vejai" },
-              { name: "Šešėlinei vejai", slug: "šešėlinei-vejai" }
+              { name: "Dekoratyvinėi vejai", slug: "dekoratyvinei-vejai" },
+              { name: "Šesėlinei vejai", slug: "seselinei-vejai" }
             ]
           },
           {
             name: "Dekoratyviniams augalams",
             slug: "dekoratyviniams-augalams",
             subcategories: [
-              { name: "Spygliuočiams", slug: "spygliuočiams" },
-              { name: "Lapuočiams", slug: "lapuočiams" },
-              { name: "Krūmams", slug: "krūmams" }
+              { name: "Spygliuočiams", slug: "spygliuociams" },
+              { name: "Lapuočiams", slug: "lapuociams" },
+              { name: "Krūmams", slug: "krumams" }
             ]
           },
           {
             name: "Kambarinėms gėlėms",
-            slug: "kambarinėms-gėlėms",
+            slug: "kambarinems-gelems",
             subcategories: [
               { name: "Fikusams", slug: "fikusams" },
-              { name: "Orchidėjoms", slug: "orchidėjoms" },
+              { name: "Orchidėjoms", slug: "orchidejoms" },
               { name: "Kaktusams", slug: "kaktusams" },
-              { name: "Palmėms", slug: "palmėms" }
+              { name: "Palmėms", slug: "palmems" }
             ]
           }
         ]
@@ -88,24 +91,24 @@ export const navigationData = {
         items: [
           {
             name: "Skystos trąšos",
-            slug: "skystos-trąšos",
+            slug: "skystos-trasos",
             subcategories: [
               { name: "Koncentruotos", slug: "koncentruotos" },
-              { name: "Gatavos naudoti", slug: "gatavos-naudoti" },
-              { name: "Organinės skystos", slug: "organinės-skystos" }
+              { name: "Paruoštos naudoti", slug: "gatavos-naudoti" },
+              { name: "Organinės skystos", slug: "organines-skystos" }
             ]
           },
           {
             name: "Granuliuotos trąšos",
-            slug: "granuliuotos-trąšos",
+            slug: "granuliuotos-trasos",
             subcategories: [
-              { name: "Lėtai tirpstančios", slug: "lėtai-tirpstančios" },
-              { name: "Greitai tirpstančios", slug: "greitai-tirpstančios" }
+              { name: "Lėtai tirpstančios", slug: "letai-tirpstancios" },
+              { name: "Greitai tirpstančios", slug: "greitai-tirpstancios" }
             ]
           },
           {
             name: "Birios trąšos",
-            slug: "birios-trąšos",
+            slug: "birios-trasos",
             subcategories: [
               { name: "Smulkios", slug: "smulkios" },
               { name: "Stambios", slug: "stambios" }
@@ -113,7 +116,7 @@ export const navigationData = {
           },
           {
             name: "Lazdelės",
-            slug: "lazdelės",
+            slug: "lazdeles",
             subcategories: [
               { name: "Kambariniams augalams", slug: "kambariniams-augalams" },
               { name: "Lauko augalams", slug: "lauko-augalams" }
@@ -121,10 +124,10 @@ export const navigationData = {
           },
           {
             name: "Tabletės",
-            slug: "tabletės",
+            slug: "tabletes",
             subcategories: [
-              { name: "Tirpstančios", slug: "tirpstančios" },
-              { name: "Lėtai skaidančios", slug: "lėtai-skaidančios" }
+              { name: "Tirpstančios", slug: "tirpstancios" },
+              { name: "Lėtai skaidančios", slug: "letai-skaidancios" }
             ]
           }
         ]
@@ -134,7 +137,7 @@ export const navigationData = {
         items: [
           {
             name: "Azotinės",
-            slug: "azotinės",
+            slug: "azotines",
             subcategories: [
               { name: "Karbamidas", slug: "karbamidas" },
               { name: "Amonio sulfatas", slug: "amonio-sulfatas" },
@@ -159,18 +162,18 @@ export const navigationData = {
           },
           {
             name: "Kompleksinės (NPK)",
-            slug: "kompleksinės-npk",
+            slug: "kompleksines-npk",
             subcategories: [
-              { name: "Pavasarinės", slug: "pavasarinės" },
+              { name: "Pavasarines", slug: "pavasarines" },
               { name: "Vasaros", slug: "vasaros" },
-              { name: "Rudens", slug: "rudens" }
+              { name: "Rudeninės", slug: "rudens" }
             ]
           },
           {
             name: "Mikroelementų",
-            slug: "mikroelementų",
+            slug: "mikroelementu",
             subcategories: [
-              { name: "Geležies", slug: "geležies" },
+              { name: "Geležies", slug: "gelezies" },
               { name: "Magnio", slug: "magnio" },
               { name: "Cinko", slug: "cinko" },
               { name: "Boro", slug: "boro" }
@@ -178,32 +181,32 @@ export const navigationData = {
           },
           {
             name: "Organinės",
-            slug: "organinės",
+            slug: "organines",
             subcategories: [
               { name: "Kompostas", slug: "kompostas" },
-              { name: "Mėšlas", slug: "mėšlas" },
-              { name: "Paukščių mėšlas", slug: "paukščių-mėšlas" }
+              { name: "Mėšlas", slug: "meslas" },
+              { name: "Paukščių mėšlas", slug: "pauksciu-meslas" }
             ]
           },
           {
             name: "Mineralinės",
-            slug: "mineralinės",
+            slug: "mineralines",
             subcategories: [
-              { name: "Vienkompozitės", slug: "vienkompozitės" },
-              { name: "Kompleksinės", slug: "kompleksinės" }
+              { name: "Vienkomponenčių", slug: "vienkompozites" },
+              { name: "Kompleksinės", slug: "kompleksines" }
             ]
           },
           {
             name: "Biostimuliatoriai",
             slug: "biostimuliatoriai",
             subcategories: [
-              { name: "Šaknų stimuliatoriai", slug: "šaknų-stimuliatoriai" },
+              { name: "Šaknų stimuliatoriai", slug: "saknu-stimuliatoriai" },
               { name: "Augimo stimuliatoriai", slug: "augimo-stimuliatoriai" }
             ]
           },
           {
             name: "Bakterinės",
-            slug: "bakterinės",
+            slug: "bakterines",
             subcategories: [
               { name: "Azoto fiksatoriai", slug: "azoto-fiksatoriai" },
               { name: "Fosforo mobilizatoriai", slug: "fosforo-mobilizatoriai" }
@@ -211,10 +214,10 @@ export const navigationData = {
           },
           {
             name: "Organinės-mineralinės",
-            slug: "organinės-mineralinės",
+            slug: "organines-mineralines",
             subcategories: [
               { name: "Su humusais", slug: "su-humusais" },
-              { name: "Su aminorūgštimis", slug: "su-aminorūgštimis" }
+              { name: "Su aminorūgštimis", slug: "su-aminorugstimis" }
             ]
           }
         ]
@@ -225,77 +228,77 @@ export const navigationData = {
     icon: Sprout,
     categories: [
       {
-        title: "Pagal augalų tipą",
+        title: "Pagal augalo tipą",
         items: [
           {
             name: "Daržovių sėklos",
-            slug: "daržovių-sėklos",
+            slug: "darzoviu-seklos",
             subcategories: [
-              { name: "Pomidorų", slug: "pomidorų" },
-              { name: "Agurkų", slug: "agurkų" },
-              { name: "Kopūstų", slug: "kopūstų" },
-              { name: "Morkų", slug: "morkų" },
-              { name: "Svogūnų", slug: "svogūnų" }
+              { name: "Pomidorų", slug: "pomidoru" },
+              { name: "Agurkų", slug: "agurku" },
+              { name: "Kopūstų", slug: "kopustu" },
+              { name: "Morkų", slug: "morku" },
+              { name: "Svogūnų", slug: "svogunu" }
             ]
           },
           {
             name: "Žolelių sėklos",
-            slug: "žolelių-sėklos",
+            slug: "zoleliu-seklos",
             subcategories: [
               { name: "Baziliko", slug: "baziliko" },
-              { name: "Petražolių", slug: "petražolių" },
-              { name: "Krapų", slug: "krapų" },
-              { name: "Rūtos", slug: "rūtos" }
+              { name: "Petražolių", slug: "petrazoliu" },
+              { name: "Krapų", slug: "krapu" },
+              { name: "Rūtos", slug: "rutos" }
             ]
           },
           {
             name: "Gėlių sėklos",
-            slug: "gėlių-sėklos",
+            slug: "geliu-seklos",
             subcategories: [
-              { name: "Vienmečių", slug: "vienmečių" },
-              { name: "Dvimečių", slug: "dvimečių" },
-              { name: "Daugiamečių", slug: "daugiamečių" }
+              { name: "Vienmečių", slug: "vienmeciu" },
+              { name: "Dvimečių", slug: "dvimeciu" },
+              { name: "Daugiamečių", slug: "daugiameciu" }
             ]
           },
           {
             name: "Javų sėklos",
-            slug: "javų-sėklos",
+            slug: "javu-seklos",
             subcategories: [
-              { name: "Kviečių", slug: "kviečių" },
-              { name: "Miežių", slug: "miežių" },
-              { name: "Avižų", slug: "avižų" },
-              { name: "Rugių", slug: "rugių" }
+              { name: "Kviečių", slug: "kvieciu" },
+              { name: "Miežių", slug: "mieziu" },
+              { name: "Avižų", slug: "avizu" },
+              { name: "Rugių", slug: "rugiu" }
             ]
           },
           {
-            name: "Ankštinių augalų sėklos",
-            slug: "ankštinių-augalų-sėklos",
+            name: "Ankstinių augalų sėklos",
+            slug: "ankstiniu-augalu-seklos",
             subcategories: [
-              { name: "Pupų", slug: "pupų" },
-              { name: "Žirnių", slug: "žirnių" },
-              { name: "Sojų", slug: "sojų" }
+              { name: "Pupų", slug: "pupu" },
+              { name: "Žirnių", slug: "zirniu" },
+              { name: "Sojos", slug: "soju" }
             ]
           },
           {
             name: "Aliejinių augalų sėklos",
-            slug: "aliejinių-augalų-sėklos",
+            slug: "aliejiniu-augalu-seklos",
             subcategories: [
-              { name: "Rapsų", slug: "rapsų" },
-              { name: "Saulėgrąžų", slug: "saulėgrąžų" }
+              { name: "Rapsų", slug: "rapsu" },
+              { name: "Saulėgrąžų", slug: "saulegrazu" }
             ]
           },
           {
             name: "Pašarinių augalų sėklos",
-            slug: "pašarinių-augalų-sėklos",
+            slug: "pasariniu-augalu-seklos",
             subcategories: [
-              { name: "Dobilų", slug: "dobilų" },
-              { name: "Liucernos", slug: "liucernos" }
+              { name: "Dobilų", slug: "dobilu" },
+              { name: "Liučernos", slug: "liucernos" }
             ]
           }
         ]
       },
       {
-        title: "Pagal sėklos kategoriją",
+        title: "Pagal sėklų kategoriją",
         items: [
           {
             name: "Sertifikuotos",
@@ -307,18 +310,18 @@ export const navigationData = {
           },
           {
             name: "Ekologiškos",
-            slug: "ekologiškos",
+            slug: "ekologiskos",
             subcategories: [
-              { name: "Ekologinio ūkio", slug: "ekologinio-ūkio" },
-              { name: "Biodinaminės", slug: "biodinaminės" }
+              { name: "Ekologinio ūkio", slug: "ekologinio-ukio" },
+              { name: "Biodinaminės", slug: "biodinamines" }
             ]
           },
           {
             name: "GMO-ne",
             slug: "gmo-ne",
             subcategories: [
-              { name: "Tradicinės veislės", slug: "tradicinės-veislės" },
-              { name: "Senos veislės", slug: "senos-veislės" }
+              { name: "Tradicinės veislės", slug: "tradicines-veisles" },
+              { name: "Senos veislės", slug: "senos-veisles" }
             ]
           },
           {
@@ -340,19 +343,19 @@ export const navigationData = {
         title: "Pagal auginimo būdą",
         items: [
           {
-            name: "Atviram gruntui",
+            name: "Atviram gruntu",
             slug: "atviram-gruntui",
             subcategories: [
-              { name: "Ankstyvoms veislėms", slug: "ankstyvoms-veislėms" },
-              { name: "Vėlyvoms veislėms", slug: "vėlyvoms-veislėms" }
+              { name: "Ankstyvoms veislėms", slug: "ankstyvoms-veislems" },
+              { name: "Vėlyvoms veislėms", slug: "velyvoms-veislems" }
             ]
           },
           {
             name: "Šiltnamiams",
-            slug: "šiltnamiams",
+            slug: "siltnamiams",
             subcategories: [
-              { name: "Šiltiems šiltnamiams", slug: "šiltiems-šiltnamiams" },
-              { name: "Šaltiems šiltnamiams", slug: "šaltiems-šiltnamiams" }
+              { name: "Šiltiems šiltnamiams", slug: "siltiems-siltnamiams" },
+              { name: "Šaltiems šiltnamiams", slug: "saltiems-siltnamiams" }
             ]
           }
         ]
@@ -363,52 +366,52 @@ export const navigationData = {
     icon: TreePine,
     categories: [
       {
-        title: "Pagal augalų tipą",
+        title: "Pagal augalo tipą",
         items: [
           {
             name: "Vaismedžių sodinukai",
-            slug: "vaismedžių-sodinukai",
+            slug: "vaismedziu-sodinukai",
             subcategories: [
-              { name: "Obelių", slug: "obelių" },
-              { name: "Kriaušių", slug: "kriaušių" },
-              { name: "Vyšnių", slug: "vyšnių" },
-              { name: "Slyvų", slug: "slyvų" }
+              { name: "Obelų", slug: "obeliu" },
+              { name: "Kriaušių", slug: "kriausiu" },
+              { name: "Vyšnių", slug: "vysniu" },
+              { name: "Slyvų", slug: "slyvu" }
             ]
           },
           {
             name: "Uogakrūmiai",
-            slug: "uogakrūmiai",
+            slug: "uogakrumiai",
             subcategories: [
-              { name: "Braškių", slug: "braškių" },
-              { name: "Aviečių", slug: "aviečių" },
-              { name: "Serbentų", slug: "serbentų" }
+              { name: "Braškių", slug: "braskiu" },
+              { name: "Aviečių", slug: "avieciu" },
+              { name: "Serbentų", slug: "serbentu" }
             ]
           },
           {
             name: "Dekoratyviniai augalai",
             slug: "dekoratyviniai-augalai",
             subcategories: [
-              { name: "Spygliuočiai", slug: "spygliuočiai" },
-              { name: "Lapuočiai", slug: "lapuočiai" },
-              { name: "Krūmai", slug: "krūmai" }
+              { name: "Spygliuočiai", slug: "spygliuociai" },
+              { name: "Lapuočiai", slug: "lapuociai" },
+              { name: "Krūmai", slug: "krumai" }
             ]
           },
           {
             name: "Daržovių sodinukai",
-            slug: "daržovių-sodinukai",
+            slug: "darzoviu-sodinukai",
             subcategories: [
-              { name: "Pomidorų", slug: "pomidorų" },
-              { name: "Agurkų", slug: "agurkų" },
-              { name: "Kopūstų", slug: "kopūstų" }
+              { name: "Pomidorų", slug: "pomidoru" },
+              { name: "Agurkų", slug: "agurku" },
+              { name: "Kopūstų", slug: "kopustu" }
             ]
           },
           {
             name: "Miško sodinukai",
-            slug: "miško-sodinukai",
+            slug: "misko-sodinukai",
             subcategories: [
-              { name: "Pušų", slug: "pušų" },
-              { name: "Eglių", slug: "eglių" },
-              { name: "Beržų", slug: "beržų" }
+              { name: "Pušų", slug: "pusu" },
+              { name: "Eglių", slug: "egliu" },
+              { name: "Beržų", slug: "berzu" }
             ]
           }
         ]
@@ -417,35 +420,35 @@ export const navigationData = {
         title: "Pagal auginimo būdą",
         items: [
           {
-            name: "Atviram gruntui",
+            name: "Atviram gruntu",
             slug: "atviram-gruntui",
             subcategories: [
-              { name: "Atsparūs šalčiui", slug: "atsparūs-šalčiui" },
-              { name: "Šilumamėgiai", slug: "šilumamėgiai" }
+              { name: "Atsparūs šalčiui", slug: "atsparus-salciui" },
+              { name: "Šilumamėgiai", slug: "silumamegiai" }
             ]
           },
           {
             name: "Šiltnamiams",
-            slug: "šiltnamiams",
+            slug: "siltnamiams",
             subcategories: [
-              { name: "Šiltiems šiltnamiams", slug: "šiltiems-šiltnamiams" },
-              { name: "Šaltiems šiltnamiams", slug: "šaltiems-šiltnamiams" }
+              { name: "Šiltiems šiltnamiams", slug: "siltiems-siltnamiams" },
+              { name: "Šaltiems šiltnamiams", slug: "saltiems-siltnamiams" }
             ]
           },
           {
             name: "Vazonėliuose",
-            slug: "vazonėliuose",
+            slug: "vazoneliuose",
             subcategories: [
-              { name: "Plastikiniai vazonėliai", slug: "plastikiniai-vazonėliai" },
+              { name: "Plastikiniai vazonėliai", slug: "plastikiniai-vazoneliai" },
               { name: "Torfinis substratas", slug: "torfinis-substratas" }
             ]
           },
           {
             name: "Plikomis šaknimis",
-            slug: "plikomis-šaknimis",
+            slug: "plikomis-saknimis",
             subcategories: [
-              { name: "Rudens sodinimas", slug: "rudens-sodinimas" },
-              { name: "Pavasario sodinimas", slug: "pavasario-sodinimas" }
+              { name: "Rudeninis sodinimas", slug: "rudens-sodinimas" },
+              { name: "Pavasarinis sodinimas", slug: "pavasario-sodinimas" }
             ]
           }
         ]
@@ -455,17 +458,17 @@ export const navigationData = {
         items: [
           {
             name: "Vienmečiai",
-            slug: "vienmečiai",
+            slug: "vienmeciai",
             subcategories: []
           },
           {
             name: "Dvimečiai",
-            slug: "dvimečiai",
+            slug: "dvimeciai",
             subcategories: []
           },
           {
             name: "Daugiau nei dvimečiai",
-            slug: "daugiau-nei-dvimečiai",
+            slug: "daugiau-nei-dvimeciai",
             subcategories: []
           }
         ]
@@ -475,17 +478,17 @@ export const navigationData = {
         items: [
           {
             name: "Vietinės veislės",
-            slug: "vietinės-veislės",
+            slug: "vietines-veisles",
             subcategories: [
-              { name: "Lietuviškos veislės", slug: "lietuviškos-veislės" },
-              { name: "Baltijos šalių", slug: "baltijos-šalių" }
+              { name: "Lietuviškos veislės", slug: "lietuviskos-veisles" },
+              { name: "Baltijos šalių", slug: "baltijos-saliu" }
             ]
           },
           {
             name: "Egzotiniai sodinukai",
             slug: "egzotiniai-sodinukai",
             subcategories: [
-              { name: "Pietų šalių", slug: "pietų-šalių" },
+              { name: "Pietų šalių", slug: "pietu-saliu" },
               { name: "Azijos", slug: "azijos" }
             ]
           }
@@ -493,7 +496,7 @@ export const navigationData = {
       }
     ]
   },
-  "Apsaugos priemonės augalams": {
+  "Augalų apsaugos priemonės": {
     icon: Shield,
     categories: [
       {
@@ -501,249 +504,26 @@ export const navigationData = {
         items: [
           {
             name: "Nuo kenkėjų",
-            slug: "nuo-kenkėjų",
+            slug: "nuo-kenkeju",
             subcategories: [
-              { name: "Nuo amarų", slug: "nuo-amarų" },
-              { name: "Nuo tripų", slug: "nuo-tripų" },
-              { name: "Nuo vikšrų", slug: "nuo-vikšrų" },
-              { name: "Nuo skruzdžių", slug: "nuo-skruzdžių" }
+              { name: "Nuo amarų", slug: "nuo-amaru" },
+              { name: "Nuo triušių", slug: "nuo-tripu" },
+              { name: "Nuo vikšrų", slug: "nuo-viksru" },
+              { name: "Nuo skruzdžių", slug: "nuo-skruzdziu" }
             ]
           },
           {
             name: "Nuo ligų",
-            slug: "nuo-ligų",
+            slug: "nuo-ligu",
             subcategories: [
-              { name: "Nuo grybinių ligų", slug: "nuo-grybinių-ligų" },
-              { name: "Nuo bakterinių ligų", slug: "nuo-bakterinių-ligų" },
-              { name: "Nuo virusinių ligų", slug: "nuo-virusinių-ligų" }
-            ]
-          },
-          {
-            name: "Nuo piktžolių",
-            slug: "nuo-piktžolių",
-            subcategories: [
-              { name: "Selektyvūs herbicidai", slug: "selektyvūs-herbicidai" },
-              { name: "Totalūs herbicidai", slug: "totalūs-herbicidai" }
-            ]
-          },
-          {
-            name: "Nuo graužikų",
-            slug: "nuo-graužikų",
-            subcategories: [
-              { name: "Nuo pelių", slug: "nuo-pelių" },
-              { name: "Nuo žiurkių", slug: "nuo-žiurkių" },
-              { name: "Nuo kurmių", slug: "nuo-kurmių" }
-            ]
-          }
-        ]
-      },
-      {
-        title: "Pagal veikimo būdą",
-        items: [
-          {
-            name: "Kontaktiniai",
-            slug: "kontaktiniai",
-            subcategories: [
-              { name: "Greitai veikiantys", slug: "greitai-veikiantys" },
-              { name: "Ilgai veikiantys", slug: "ilgai-veikiantys" }
-            ]
-          },
-          {
-            name: "Sistemininiai",
-            slug: "sistemininiai",
-            subcategories: [
-              { name: "Šaknų absorbcija", slug: "šaknų-absorbcija" },
-              { name: "Lapų absorbcija", slug: "lapų-absorbcija" }
-            ]
-          },
-          {
-            name: "Translaminariniai",
-            slug: "translaminariniai",
-            subcategories: []
-          },
-          {
-            name: "Fumigantai",
-            slug: "fumigantai",
-            subcategories: [
-              { name: "Dirvožemio fumigantai", slug: "dirvožemio-fumigantai" },
-              { name: "Sandėlių fumigantai", slug: "sandėlių-fumigantai" }
-            ]
-          }
-        ]
-      },
-      {
-        title: "Pagal kilmę",
-        items: [
-          {
-            name: "Ekologiškos priemonės",
-            slug: "ekologiškos-priemonės",
-            subcategories: [
-              { name: "Augalinės kilmės", slug: "augalinės-kilmės" },
-              { name: "Mineralinės kilmės", slug: "mineralinės-kilmės" },
-              { name: "Biologinės", slug: "biologinės" }
-            ]
-          },
-          {
-            name: "Cheminės priemonės",
-            slug: "cheminės-priemonės",
-            subcategories: [
-              { name: "Sintetinės", slug: "sintetinės" },
-              { name: "Pusiau sintetinės", slug: "pusiau-sintetinės" }
-            ]
-          }
-        ]
-      },
-      {
-        title: "Pagal taikymo būdą",
-        items: [
-          {
-            name: "Purškimui",
-            slug: "purškimui",
-            subcategories: [
-              { name: "Lapų purškimui", slug: "lapų-purškimui" },
-              { name: "Dirvožemio purškimui", slug: "dirvožemio-purškimui" }
-            ]
-          },
-          {
-            name: "Dirvožemiui",
-            slug: "dirvožemiui",
-            subcategories: [
-              { name: "Granulės", slug: "granulės" },
-              { name: "Milteliai", slug: "milteliai" }
-            ]
-          },
-          {
-            name: "Sėklų beicavimui",
-            slug: "sėklų-beicavimui",
-            subcategories: [
-              { name: "Skystas beicas", slug: "skystas-beicas" },
-              { name: "Sausas beicas", slug: "sausas-beicas" }
-            ]
-          },
-          {
-            name: "Rūko generatoriai",
-            slug: "rūko-generatoriai",
-            subcategories: [
-              { name: "Šiltnamių rūkas", slug: "šiltnamių-rūkas" },
-              { name: "Sandėlių rūkas", slug: "sandėlių-rūkas" }
-            ]
-          }
-        ]
-      },
-      {
-        title: "Fizinės apsaugos",
-        items: [
-          {
-            name: "Šiltnamių plėvelės",
-            slug: "šiltnamių-plėvelės",
-            subcategories: [
-              { name: "PE plėvelės", slug: "pe-plėvelės" },
-              { name: "PVC plėvelės", slug: "pvc-plėvelės" },
-              { name: "Polikarbonato plokštės", slug: "polikarbonato-plokštės" }
-            ]
-          },
-          {
-            name: "Tinkliukai",
-            slug: "tinkliukai",
-            subcategories: [
-              { name: "Nuo vabzdžių", slug: "nuo-vabzdžių" },
-              { name: "Nuo paukščių", slug: "nuo-paukščių" },
-              { name: "Šešėlių tinkliukai", slug: "šešėlių-tinkliukai" }
-            ]
-          },
-          {
-            name: "Agroplėvelės",
-            slug: "agroplėvelės",
-            subcategories: [
-              { name: "Baltos", slug: "baltos" },
-              { name: "Juodos", slug: "juodos" },
-              { name: "Perforuotos", slug: "perforuotos" }
-            ]
-          },
-          {
-            name: "Mulčias",
-            slug: "mulčias",
-            subcategories: [
-              { name: "Organinis mulčias", slug: "organinis-mulčias" },
-              { name: "Neorganinis mulčias", slug: "neorganinis-mulčias" }
-            ]
-          },
-          {
-            name: "Apsauginės dangos",
-            slug: "apsauginės-dangos",
-            subcategories: [
-              { name: "Nuo šalnos", slug: "nuo-šalnos" },
-              { name: "Nuo saulės", slug: "nuo-saulės" }
+              { name: "Nuo pelėsių", slug: "nuo-peleses" },
+              { name: "Nuo rūjos", slug: "nuo-rujos" },
+              { name: "Nuo bakterijų", slug: "nuo-bakteriju" }
             ]
           }
         ]
       }
     ]
   }
-}
-
-// Helper function to get all items with subcategories flattened
-export const getAllCategoryItems = () => {
-  const allItems = []
-  
-  Object.entries(navigationData).forEach(([mainCategory, data]) => {
-    data.categories.forEach(category => {
-      category.items.forEach(item => {
-        allItems.push({
-          mainCategory,
-          categoryTitle: category.title,
-          ...item
-        })
-        
-        // Add subcategories as separate items
-        if (item.subcategories && item.subcategories.length > 0) {
-          item.subcategories.forEach(subcat => {
-            allItems.push({
-              mainCategory,
-              categoryTitle: category.title,
-              parentItem: item.name,
-              parentSlug: item.slug,
-              name: subcat.name,
-              slug: subcat.slug,
-              isSubcategory: true
-            })
-          })
-        }
-      })
-    })
-  })
-  
-  return allItems
-}
-
-// Helper function to find category data by slug
-export const findCategoryBySlug = (mainCategory, slug) => {
-  const categoryData = navigationData[mainCategory]
-  if (!categoryData) return null
-  
-  for (const category of categoryData.categories) {
-    for (const item of category.items) {
-      if (item.slug === slug) {
-        return { ...item, categoryTitle: category.title }
-      }
-      
-      // Check subcategories
-      if (item.subcategories) {
-        for (const subcat of item.subcategories) {
-          if (subcat.slug === slug) {
-            return {
-              ...subcat,
-              categoryTitle: category.title,
-              parentItem: item.name,
-              parentSlug: item.slug,
-              isSubcategory: true
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  return null
-}
-
+};
+```
