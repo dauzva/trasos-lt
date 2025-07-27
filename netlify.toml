@@ -13,5 +13,5 @@
 
 # Configure function timeouts
 [functions."*"]
-  timeout = 30
+  timeout = 120
 

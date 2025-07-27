@@ -56,7 +56,7 @@ export default async function handler(event) {
       messages: [
         {
           "role": "user",
-          "content": `write a 1000 word extensive blog post for agriculture wiki in lithuanian about one of the topics from the available categories/subcategories - pick a random one\nauthor: Virtualus žemės ūkio ekspertas\n\nWrite in markdown format with proper headings, subheadings, and detailed content. The post should be educational, practical, and helpful for Lithuanian farmers and gardeners. Include specific tips, techniques, and best practices.\n\nMake sure to:\n- Use proper Lithuanian language\n- Include practical advice\n- Structure with clear headings\n- Write approximately 1000 words\n- Focus on actionable information\n- Use markdown formatting\n\nStart with a main heading (# Title) and include several subheadings (## and ###).`
+          "content": "Write a 1000-word blog post in Lithuanian for Agriculture Wiki about" + randomCategory + ". author: Virtualus žemės ūkio ekspertas. Create a Markdown file with front matter (title, author, category, image, tags, date) followed by content in Markdown format including headings, lists, and examples. Use a friendly and informative tone. Include relevant keywords for SEO. The post should be well-structured with an introduction, main content, and conclusion. Make sure to include practical tips and examples where applicable."
         }
       ],
     });

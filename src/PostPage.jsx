@@ -1,16 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Clock, Tag, Share2, BookOpen } from 'lucide-react'
-import { getPostById, getAllPosts } from './data/posts'
 import PostCard from './components/PostCard'
 import { InArticleAd, DisplayAd } from './components/GoogleAds'
 
 function PostPage() {
   const { postId } = useParams()
   const navigate = useNavigate()
-  const post = getPostById(postId)
-  
-  if (!post) {
+  const [post, setPost] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    async function fetchPost() {
+      setLoading(true)
+      setError(null)
+      try {
+        const response = await fetch(`/.netlify/functions/get-post?id=${postId}`)
+        const data = await response.json()
+        if (data.success) {
+          setPost(data.post)
+        } else {
+          setError(data.error || 'Post not found')
+        }
+      } catch (err) {
+        setError('Klaida gaunant straipsnį')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchPost()
+  }, [postId])
+
+  if (loading) {
+    return <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">Kraunama...</div>
+  }
+
+  if (error || !post) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 text-center">
@@ -145,7 +171,7 @@ function PostPage() {
                 <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                   {post.category}
                 </span>
-                {post.tags && post.tags.slice(0, 2).map((tag, index) => (
+                {Array.isArray(post.tags) && post.tags.slice(0, 2).map((tag, index) => (
                   <span key={index} className="bg-white/20 text-white px-2 py-1 rounded-full text-xs backdrop-blur-sm">
                     {tag}
                   </span>
@@ -166,7 +192,7 @@ function PostPage() {
                 <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
                   {post.category}
                 </span>
-                {post.tags && post.tags.slice(0, 3).map((tag, index) => (
+                {Array.isArray(post.tags) && post.tags.slice(0, 3).map((tag, index) => (
                   <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
                     {tag}
                   </span>
@@ -186,7 +212,7 @@ function PostPage() {
             </div>
             <div className="flex items-center gap-2">
               <Calendar size={16} />
-              <span>{formatDate(post.date)}</span>
+              <span>{formatDate(post.timestamp)}</span>
             </div>
             {post.content && (
               <div className="flex items-center gap-2">
@@ -204,11 +230,13 @@ function PostPage() {
           </div>
 
           {/* Excerpt */}
-          <div className="mb-8">
-            <p className="text-lg text-gray-600 leading-relaxed font-medium">
-              {post.excerpt}
-            </p>
-          </div>
+          {post.excerpt && (
+            <div className="mb-8">
+              <p className="text-lg text-gray-600 leading-relaxed font-medium">
+                {post.excerpt}
+              </p>
+            </div>
+          )}
 
           {/* In-Article Ad */}
           <InArticleAd />
@@ -221,7 +249,7 @@ function PostPage() {
           )}
 
           {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
+          {Array.isArray(post.tags) && post.tags.length > 0 && (
             <div className="mt-8 pt-6 border-t border-gray-200">
               <div className="flex items-center gap-2 mb-3">
                 <Tag size={16} className="text-gray-400" />
@@ -255,9 +283,9 @@ function PostPage() {
           </h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {relatedPosts.map((relatedPost) => (
-              <PostCard 
-                key={relatedPost.id} 
-                post={relatedPost} 
+              <PostCard
+                key={relatedPost.id}
+                post={relatedPost}
                 showImage={true}
                 size="compact"
               />
@@ -287,4 +315,3 @@ function PostPage() {
 }
 
 export default PostPage
-
