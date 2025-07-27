@@ -523,3 +523,19 @@ export const navigationData = {
     ]
   }
 };
+
+// Utility to find a category or subcategory by slug
+export function findCategoryBySlug(slug) {
+  for (const section of Object.values(navigationData)) {
+    for (const categoryGroup of section.categories) {
+      for (const item of categoryGroup.items) {
+        if (item.slug === slug) return item;
+        if (item.subcategories) {
+          const sub = item.subcategories.find(sub => sub.slug === slug);
+          if (sub) return sub;
+        }
+      }
+    }
+  }
+  return null;
+}
