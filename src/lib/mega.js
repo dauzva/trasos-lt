@@ -1,5 +1,6 @@
 // src/lib/mega.js
-import { Storage } from 'mega';
+import mega from 'mega';
+const { Storage } = mega;
 
 // Initialize Mega Storage client
 // You will need to set MEGA_EMAIL and MEGA_PASSWORD in your Netlify environment variables

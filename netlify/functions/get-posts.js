@@ -4,9 +4,9 @@ import { neon } from '@netlify/neon';
 // Initialize Neon client
 const sql = neon();
 
-export default async function handler(req, res) {
+export default async function handler(event) {
   try {
-    const url = new URL(req.url, `https://${req.headers.host}`);
+    const url = new URL(event.rawUrl || event.url, `https://${event.headers.host}`);
     const limit = parseInt(url.searchParams.get('limit')) || 10;
     const offset = parseInt(url.searchParams.get('offset')) || 0;
     const category = url.searchParams.get('category');
@@ -53,23 +53,35 @@ export default async function handler(req, res) {
       image_url: post.image_url
     }));
     
-    res.status(200).json({
-      success: true,
-      posts: transformedPosts,
-      total: total,
-      hasMore: offset + limit < total,
-      pagination: {
-        limit,
-        offset,
-        category
+    return new Response(
+      JSON.stringify({
+        success: true,
+        posts: transformedPosts,
+        total: total,
+        hasMore: offset + limit < total,
+        pagination: {
+          limit,
+          offset,
+          category
+        }
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
       }
-    });
-    
+    );
+
   } catch (error) {
     console.error('Error in get-posts function:', error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 }
