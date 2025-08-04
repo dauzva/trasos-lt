@@ -22,9 +22,24 @@ import { allCategorySlugs } from '../../src/data/category-mapping.js';
 async function savePost(postData) {
   try {
     const result = await sql`
-      INSERT INTO posts (title, content, category, subcategory, tags, english_title, author, date, published, image_url)
-      VALUES (${postData.title}, ${postData.content}, ${postData.category}, ${postData.subcategory}, ${postData.tags}, ${postData.english_title}, ${postData.author}, ${postData.date}, ${postData.published}, ${postData.image_url})
-      RETURNING id, title, content, category, subcategory, tags, english_title, author, date, created_at
+      INSERT INTO posts (
+        id, slug, title, excerpt, content, category, subcategory, tags, english_title, author, date, published, image_url
+      ) VALUES (
+        ${postData.id},
+        ${postData.slug},
+        ${postData.title},
+        ${postData.excerpt},
+        ${postData.content},
+        ${postData.category},
+        ${postData.subcategory},
+        ${postData.tags},
+        ${postData.english_title},
+        ${postData.author},
+        ${postData.date},
+        ${postData.published},
+        ${postData.image_url}
+      )
+      RETURNING id, slug, title, content, category, created_at
     `;
     
     console.log('Post saved to Neon DB:', result[0].id);
@@ -172,7 +187,7 @@ export default async function handler(event) {
 
     // Prepare OpenAI streaming request
     const stream = await openai.chat.completions.create({
-      model: "z-ai/glm-4.5-air:free",
+      model: "openrouter/horizon-beta",
       messages: [
         {
           "role": "system",
@@ -284,18 +299,21 @@ export default async function handler(event) {
         const { frontMatter, body } = parseFrontMatter(fullContent);
         const metadata = extractMetadata(fullContent, randomCategory);
         const title = metadata.title;
-        const slug = frontMatter.slug || generateSlug(title);
-        const excerpt = frontMatter.excerpt || extractExcerpt(body);
+        // Generate slug from title if not present
+        const safeTitle = title || metadata.title || 'straipsnis';
+        const slug = (frontMatter.slug && String(frontMatter.slug).trim()) || generateSlug(safeTitle);
+        // Use only the body (no frontmatter) for content
+        const contentBody = body || fullContent.replace(/^---[\s\S]*?---/, '').trim();
+        const excerpt = frontMatter.excerpt || extractExcerpt(contentBody);
         const id = frontMatter.id || generatePostId();
-        
         // Use only the english_title for Unsplash image search if available, fallback to category/title
         let imageSearch = metadata.english_title || metadata.category || title || 'agriculture';
         imageSearch = Array.isArray(imageSearch) ? imageSearch.join(',') : imageSearch;
         const imageUrl = await fetchStockImage(imageSearch);
-        
+
         // Clean content by removing frontmatter and keeping only the body
         const cleanContent = body || fullContent.replace(/^---[\s\S]*?---\s*/, '');
-        
+
         const postData = {
           id,
           title: metadata.title || title,
@@ -310,6 +328,20 @@ export default async function handler(event) {
           date: metadata.date || new Date().toISOString().slice(0, 10),
           published: true,
           image_url: imageUrl || null
+        };
+        // Format the post for PostPage consumption
+        const formattedPost = {
+          id,
+          title: safeTitle,
+          content: contentBody,
+          category: metadata.category || randomCategory,
+          subcategory: metadata.subcategory || randomSubcategory,
+          tags: (metadata.tags || '').split(',').map(t => t.trim()).filter(Boolean),
+          author: metadata.author || 'Virtualus žemės ūkio ekspertas',
+          date: metadata.date || new Date().toISOString().slice(0, 10),
+          image: imageUrl || null,
+          timestamp: new Date().toISOString(),
+          excerpt
         };
         await savePost(postData);
         controller.close();
