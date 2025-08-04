@@ -22,9 +22,24 @@ import { allCategorySlugs } from '../../src/data/category-mapping.js';
 async function savePost(postData) {
   try {
     const result = await sql`
-      INSERT INTO posts (title, content, category, published, image_url)
-      VALUES (${postData.title}, ${postData.content}, ${postData.category}, ${postData.published}, ${postData.image_url})
-      RETURNING id, title, content, category, created_at
+      INSERT INTO posts (
+        id, slug, title, excerpt, content, category, subcategory, tags, english_title, author, date, published, image_url
+      ) VALUES (
+        ${postData.id},
+        ${postData.slug},
+        ${postData.title},
+        ${postData.excerpt},
+        ${postData.content},
+        ${postData.category},
+        ${postData.subcategory},
+        ${postData.tags},
+        ${postData.english_title},
+        ${postData.author},
+        ${postData.date},
+        ${postData.published},
+        ${postData.image_url}
+      )
+      RETURNING id, slug, title, content, category, created_at
     `;
     
     console.log('Post saved to Neon DB:', result[0].id);
@@ -35,21 +50,30 @@ async function savePost(postData) {
   }
 }
 
-// Extract title from markdown content
+/**
+ * Extracts the H1 title from Markdown content.
+ * Falls back to a default if no H1 is found.
+ */
 function extractTitle(content) {
-  const lines = content.split('\n');
-  const titleLine = lines.find(line => line.trim().startsWith('#'));
-  if (titleLine) {
-    return titleLine.replace(/^#+\s*/, '').trim();
+  const lines = content.split(/\r?\n/);
+  for (const line of lines) {
+    const match = line.trim().match(/^#\s+(.+)$/);
+    if (match) {
+      return match[1].trim();
+    }
   }
   return 'Naujas straipsnis';
 }
 
-// Extract metadata from generated markdown content
+/**
+ * Extracts metadata from content using frontmatter or fallbacks.
+ * Ensures required fields are present.
+ */
 function extractMetadata(content, fallbackCategory) {
-  // Extract frontmatter if present
-  const frontmatterMatch = content.match(/^---([\s\S]*?)---/);
-  let metadata = {
+  const { frontMatter } = parseFrontMatter(content);
+
+  // Default values
+  const metadata = {
     title: '',
     author: 'Virtualus žemės ūkio ekspertas',
     category: fallbackCategory,
@@ -58,18 +82,24 @@ function extractMetadata(content, fallbackCategory) {
     english_title: '',
     date: new Date().toISOString().slice(0, 10),
   };
-  if (frontmatterMatch) {
-    const fm = frontmatterMatch[1];
-    fm.split('\n').forEach(line => {
-      const [key, ...rest] = line.split(':');
-      if (key && rest.length) {
-        const value = rest.join(':').trim();
-        if (key.trim() in metadata) metadata[key.trim()] = value;
-      }
-    });
+
+  // Populate from frontmatter if available
+  Object.keys(metadata).forEach(key => {
+    if (frontMatter[key] && frontMatter[key].trim() !== '') {
+      metadata[key] = frontMatter[key].trim();
+    }
+  });
+
+  // Fallback: extract title from H1 if not in frontmatter
+  if (!metadata.title) {
+    metadata.title = extractTitle(content);
   }
-  if (!metadata.title) metadata.title = extractTitle(content);
-  if (!metadata.category) metadata.category = fallbackCategory;
+
+  // Normalize tags: ensure string
+  if (Array.isArray(metadata.tags)) {
+    metadata.tags = metadata.tags.join(', ');
+  }
+
   return metadata;
 }
 
@@ -93,27 +123,48 @@ async function fetchStockImage(keyword) {
   }
 }
 
-// Markdown processor logic (adapted from markdown-processor.cjs)
+/**
+ * Robustly parses YAML frontmatter from Markdown content.
+ * Handles inconsistent line breaks and whitespace.
+ */
 function parseFrontMatter(content) {
-  const frontMatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/;
-  const match = content.match(frontMatterRegex);
-  if (!match) {
-    return {
-      frontMatter: {},
-      body: content
-    };
+  // Trim and normalize line endings
+  const trimmed = content.trim();
+  const lines = trimmed.split(/\r?\n/);
+
+  // Look for the first and second '---' delimiters
+  let start = -1, end = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === '---') {
+      if (start === -1) {
+        start = i;
+      } else {
+        end = i;
+        break;
+      }
+    }
   }
-  const frontMatterText = match[1];
-  const body = match[2];
+
+  if (start === -1 || end === -1 || end <= start + 1) {
+    return { frontMatter: {}, body: trimmed };
+  }
+
+  const frontMatterText = lines.slice(start + 1, end).join('\n');
+  const body = lines.slice(end + 1).join('\n').trim();
+
+  // Parse frontmatter line by line
   const frontMatter = {};
   frontMatterText.split('\n').forEach(line => {
-    const colonIndex = line.indexOf(':');
-    if (colonIndex > 0) {
-      const key = line.substring(0, colonIndex).trim();
-      const value = line.substring(colonIndex + 1).trim().replace(/^['"]|['"]$/g, '');
+    const match = line.trim().match(/^([^:]+):\s*(.*)$/);
+    if (match) {
+      const key = match[1].trim();
+      let value = match[2].trim();
+      // Remove surrounding quotes if present
+      value = value.replace(/^['"](.*)['"]$/, '$1');
       frontMatter[key] = value;
     }
   });
+
   return { frontMatter, body };
 }
 
@@ -172,7 +223,7 @@ export default async function handler(event) {
 
     // Prepare OpenAI streaming request
     const stream = await openai.chat.completions.create({
-      model: "z-ai/glm-4.5-air:free",
+      model: "openrouter/horizon-beta",
       messages: [
         {
           "role": "system",
@@ -289,19 +340,29 @@ export default async function handler(event) {
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
+        let chunkCount = 0;
         for await (const chunk of stream) {
           const content = chunk.choices?.[0]?.delta?.content || '';
           if (content) {
             controller.enqueue(encoder.encode(content));
             fullContent += content;
+            chunkCount++;
+            console.log(`[STREAM] Received chunk #${chunkCount}:`, content.slice(0, 50));
+          } else {
+            console.log(`[STREAM] Empty chunk received.`);
           }
         }
+        console.log(`[STREAM] Stream ended. Total chunks: ${chunkCount}`);
         // Use markdown processor logic
         const { frontMatter, body } = parseFrontMatter(fullContent);
         const metadata = extractMetadata(fullContent, randomCategory);
         const title = metadata.title;
-        const slug = frontMatter.slug || generateSlug(title);
-        const excerpt = frontMatter.excerpt || extractExcerpt(body);
+        // Generate slug from title if not present
+        const safeTitle = title || metadata.title || 'straipsnis';
+        const slug = (frontMatter.slug && String(frontMatter.slug).trim()) || generateSlug(safeTitle);
+        // Use only the body (no frontmatter) for content
+        const contentBody = body || fullContent.replace(/^---[\s\S]*?---/, '').trim();
+        const excerpt = frontMatter.excerpt || extractExcerpt(contentBody);
         const id = frontMatter.id || generatePostId();
         // Use only the english_title for Unsplash image search if available, fallback to category/title
         let imageSearch = metadata.english_title || metadata.category || title || 'agriculture';
@@ -309,10 +370,10 @@ export default async function handler(event) {
         const imageUrl = await fetchStockImage(imageSearch);
         const postData = {
           id,
-          title,
+          title: safeTitle,
           slug,
           excerpt,
-          content: fullContent,
+          content: contentBody, // Only the article body, not full markdown
           category: metadata.category || randomCategory,
           subcategory: metadata.subcategory || randomSubcategory,
           tags: metadata.tags || '',
@@ -321,6 +382,20 @@ export default async function handler(event) {
           date: metadata.date || new Date().toISOString().slice(0, 10),
           published: true,
           image_url: imageUrl || null
+        };
+        // Format the post for PostPage consumption
+        const formattedPost = {
+          id,
+          title: safeTitle,
+          content: contentBody,
+          category: metadata.category || randomCategory,
+          subcategory: metadata.subcategory || randomSubcategory,
+          tags: (metadata.tags || '').split(',').map(t => t.trim()).filter(Boolean),
+          author: metadata.author || 'Virtualus žemės ūkio ekspertas',
+          date: metadata.date || new Date().toISOString().slice(0, 10),
+          image: imageUrl || null,
+          timestamp: new Date().toISOString(),
+          excerpt
         };
         await savePost(postData);
         controller.close();
