@@ -8,6 +8,7 @@ function PostPage() {
   const { postId } = useParams()
   const navigate = useNavigate()
   const [post, setPost] = useState(null)
+  const [relatedPosts, setRelatedPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -20,6 +21,8 @@ function PostPage() {
         const data = await response.json()
         if (data.success) {
           setPost(data.post)
+          // Fetch related posts after main post is loaded
+          fetchRelatedPosts(data.post)
         } else {
           setError(data.error || 'Post not found')
         }
@@ -27,6 +30,16 @@ function PostPage() {
         setError('Klaida gaunant straipsnį')
       } finally {
         setLoading(false)
+      }
+    }
+    async function fetchRelatedPosts(post) {
+      if (!post || !post.category) return setRelatedPosts([])
+      const res = await fetch(`/.netlify/functions/get-posts?category=${encodeURIComponent(post.category)}&limit=4`)
+      const data = await res.json()
+      if (data.success && Array.isArray(data.posts)) {
+        setRelatedPosts(data.posts.filter(p => p.id !== post.id).slice(0, 3))
+      } else {
+        setRelatedPosts([])
       }
     }
     fetchPost()
@@ -61,12 +74,6 @@ function PostPage() {
     )
   }
 
-  // Get related posts (same category, excluding current post)
-  const allPosts = getAllPosts()
-  const relatedPosts = allPosts
-    .filter(p => p.id !== post.id && p.category === post.category)
-    .slice(0, 3)
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('lt-LT', {
       year: 'numeric',
@@ -99,9 +106,16 @@ function PostPage() {
     }
   }
 
+  // Helper to strip YAML frontmatter from markdown content
+  const stripFrontmatter = (content) => {
+    if (!content) return '';
+    return content.replace(/^---[\s\S]*?---\s*/, '');
+  }
+
   // Convert markdown-like content to HTML (basic implementation)
   const formatContent = (content) => {
-    return content
+    const cleanContent = stripFrontmatter(content);
+    return cleanContent
       .split('\n\n')
       .map((paragraph, index) => {
         if (paragraph.startsWith('# ')) {
@@ -171,7 +185,7 @@ function PostPage() {
                 <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                   {post.category}
                 </span>
-                {Array.isArray(post.tags) && post.tags.slice(0, 2).map((tag, index) => (
+                {(Array.isArray(post.tags) ? post.tags : (typeof post.tags === 'string' ? post.tags.split(',').map(t => t.trim()) : [])).slice(0, 2).map((tag, index) => (
                   <span key={index} className="bg-white/20 text-white px-2 py-1 rounded-full text-xs backdrop-blur-sm">
                     {tag}
                   </span>

@@ -19,7 +19,7 @@ export default async function handler(event) {
     }
     console.log(`Fetching post with ID: ${postId}`);
     const result = await sql`
-      SELECT * FROM public_posts 
+      SELECT * FROM posts
       WHERE id = ${postId}
     `;
     if (result.length === 0) {
@@ -34,11 +34,15 @@ export default async function handler(event) {
     const post = result[0];
     const transformedPost = {
       id: post.id,
-      title: post.display_title,
+      title: post.title, // use correct column
       content: post.content,
       category: post.category,
-      timestamp: post.created_at,
-      author: "AI Generatorius"
+      subcategory: post.subcategory,
+      tags: post.tags,
+      author: post.author,
+      date: post.date || post.created_at,
+      image: post.image_url || null,
+      timestamp: post.created_at
     };
     return new Response(JSON.stringify({
       success: true,

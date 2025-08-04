@@ -16,10 +16,11 @@ export default async function handler(event) {
     let posts, countResult;
     
     if (category) {
-      // Filter by category
+      // Filter by category, order by most recent
       posts = await sql`
-        SELECT * FROM public_posts 
-        WHERE category = ${category}
+        SELECT * FROM posts
+        WHERE published = true AND category = ${category}
+        ORDER BY created_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
       
@@ -28,9 +29,11 @@ export default async function handler(event) {
         WHERE published = true AND category = ${category}
       `;
     } else {
-      // Get all posts
+      // Get all posts, order by most recent
       posts = await sql`
-        SELECT * FROM public_posts 
+        SELECT * FROM posts
+        WHERE published = true
+        ORDER BY created_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
       
@@ -44,11 +47,13 @@ export default async function handler(event) {
     // Transform data to match frontend expectations
     const transformedPosts = posts.map(post => ({
       id: post.id,
-      title: post.display_title,
+      title: post.title,
       content: post.content,
       category: post.category,
-      timestamp: post.created_at,
-      author: "AI Generatorius",
+      subcategory: post.subcategory,
+      tags: post.tags,
+      author: post.author,
+      date: post.date || post.created_at,
       excerpt: post.excerpt,
       image_url: post.image_url
     }));

@@ -16,7 +16,6 @@ const sql = neon(process.env.NETLIFY_DATABASE_URL);
 
 // Available categories for random selection (ASCII-compatible)
 import { allCategorySlugs } from '../../src/data/category-mapping.js';
-import { uploadImage } from '../../src/lib/mega.js';
 
 // Save post to Neon DB
 async function savePost(postData) {
@@ -45,62 +44,96 @@ function extractTitle(content) {
   return 'Naujas straipsnis';
 }
 
-// This function runs automatically based on cron schedule
-export default async function handler(req, res) {
-  try {
-    console.log('Starting scheduled blog generation...');    // Randomly select a category for the blog post
-    const randomCategory = allCategorySlugs[Math.floor(Math.random() * allCategorySlugs.length)];
-    
-    // Generate blog post content
-    const completion = await openai.chat.completions.create({
-      model: "qwen/qwen-2.5-72b-instruct",
-      messages: [
-        {
-          "role": "user",
-          "content": "Write a 1000-word blog post in Lithuanian for Agriculture Wiki about" + randomCategory + ". author: Virtualus žemės ūkio ekspertas. Create a Markdown file with front matter (title, author, category, image, tags, date) followed by content in Markdown format including headings, lists, and examples. Use a friendly and informative tone. Include relevant keywords for SEO. The post should be well-structured with an introduction, main content, and conclusion. Make sure to include practical tips and examples where applicable."
-        }
-      ],
-    });
-
-    const content = completion.choices[0].message.content;
-    const title = extractTitle(content);
-    
-    // Generate a dummy image buffer for Mega upload (replace with actual image generation)
-    const dummyImageBuffer = Buffer.from("This is a dummy image content for " + title);
-    const fileName = `${Date.now()}.jpg`; // Unique filename
-    
-    // Upload image to Mega.nz
-    const megaImageUrl = await uploadImage(fileName, dummyImageBuffer);
-
-    // Create compact post object
-    const postData = {
-      title: title,
-      content: content,
-      category: randomCategory,
-      published: true,
-      image_url: megaImageUrl
-    };
-    
-    // Save to Neon DB
-    const savedPost = await savePost(postData);
-    
-    console.log("Blog post generated and saved successfully:", savedPost.id);
-    res.status(200).json({ 
-      success: true, 
-      message: "Blog post generated and saved to Neon DB",
-      post: {
-        id: savedPost.id,
-        title: savedPost.title,
-        category: savedPost.category,
-        created_at: savedPost.created_at,
-        image_url: savedPost.image_url
+// Extract metadata from generated markdown content
+function extractMetadata(content, fallbackCategory) {
+  const frontmatterMatch = content.match(/^---([\s\S]*?)---/);
+  let metadata = {
+    title: '',
+    author: 'Virtualus žemės ūkio ekspertas',
+    category: fallbackCategory,
+    subcategory: '',
+    tags: '',
+    date: new Date().toISOString().slice(0, 10),
+  };
+  if (frontmatterMatch) {
+    const fm = frontmatterMatch[1];
+    fm.split('\n').forEach(line => {
+      const [key, ...rest] = line.split(':');
+      if (key && rest.length) {
+        const value = rest.join(':').trim();
+        if (key.trim() in metadata) metadata[key.trim()] = value;
       }
-    });  } catch (error) {
-    console.error('Scheduled generation error:', error);
-    res.status(500).json({ 
-      error: error.message,
-      success: false
     });
+  }
+  if (!metadata.title) metadata.title = extractTitle(content);
+  if (!metadata.category) metadata.category = fallbackCategory;
+  return metadata;
+}
+
+// Fetch a free stock image from Unsplash using the official API (in English)
+async function fetchStockImage(keyword) {
+  try {
+    const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+    if (!accessKey) {
+      console.warn('No Unsplash access key set. Set UNSPLASH_ACCESS_KEY in your environment.');
+      return null;
+    }
+    const query = encodeURIComponent(keyword);
+    const response = await fetch(`https://api.unsplash.com/photos/random?query=${query}&orientation=landscape&client_id=${accessKey}`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.urls && data.urls.regular ? data.urls.regular : null;
+  } catch (e) {
+    console.error('Error fetching stock image:', e);
+    return null;
   }
 }
 
+// This function runs automatically based on cron schedule
+export default async function handler(req, res) {
+  try {
+    console.log('Starting scheduled blog generation...');
+    const randomCategory = allCategorySlugs[Math.floor(Math.random() * allCategorySlugs.length)];
+    // Generate blog post content with YAML frontmatter
+    const completion = await openai.chat.completions.create({
+      model: "z-ai/glm-4.5-air:free",
+      messages: [
+        {
+          "role": "user",
+          "content": `Parašyk 1000 žodžių straipsnį lietuvių kalba žemės ūkio wiki blogui apie kategoriją \"${randomCategory}\". Sugeneruok Markdown failą su YAML frontmatter, kuriame būtų: title, author (\"Virtualus žemės ūkio ekspertas\"), category, subcategory (jei aktualu), tags (4-6 žodžiai), date (šiandienos data, YYYY-MM-DD). Po frontmatter pateik turinį su antraštėmis, sąrašais, pavyzdžiais. Naudok SEO raktažodžius, draugišką ir informatyvų toną. Struktūruok: įvadas, pagrindas, išvados, praktiniai patarimai.`
+        },
+        {
+          "role": "system",
+          "content": "Tu esi lietuvių žemės ūkio ekspertas, generuoji kokybiškus, SEO optimizuotus blogo įrašus aukšto lygio lietuvių kalba."
+        }
+      ],
+      max_tokens: 4000,
+      temperature: 1,
+      top_p: 1,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+      repeat_penalty: 1.0
+    });
+    const content = completion.choices[0].message.content;
+    const metadata = extractMetadata(content, randomCategory);
+    // Fetch Unsplash image
+    const imageUrl = await fetchStockImage(metadata.category || metadata.title || 'agriculture');
+    // Save post to DB
+    const postData = {
+      title: metadata.title,
+      content,
+      category: metadata.category,
+      subcategory: metadata.subcategory,
+      tags: metadata.tags,
+      author: metadata.author,
+      date: metadata.date,
+      published: true,
+      image_url: imageUrl || null
+    };
+    await savePost(postData);
+    res.status(200).json({ success: true, message: 'Scheduled blog post generated and saved.' });
+  } catch (error) {
+    console.error('Error in scheduled blog generation:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
