@@ -7,7 +7,9 @@ function SubcategoryDropdown({ subcategories, mainCategory, parentSlug, isVisibl
   if (!subcategories || subcategories.length === 0 || !isVisible) return null
 
   return (
-    <div className="absolute left-full top-0 ml-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+    <div className="absolute left-full -top-4 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-[60] overflow-hidden" style={{pointerEvents: 'auto'}}>
+      {/* Optional bridge to prevent mouseout gap */}
+      <div className="absolute -left-2 top-0 h-full w-2 bg-transparent" style={{pointerEvents: 'auto'}}></div>
       <div className="p-3">
         <div className="space-y-1">
           {subcategories.map((subcat, index) => (
@@ -34,10 +36,22 @@ function DropdownMenu({ title, data, isOpen, onToggle, closeDropdowns }) {
   // Check if current page is in this category
   const isCurrentCategory = location.pathname.startsWith(`/${title.toLowerCase()}`)
 
+  const handleMouseEnter = () => {
+    onToggle(true)
+  }
+
+  const handleMouseLeave = () => {
+    onToggle(false)
+    setHoveredItem(null)
+  }
+
   return (
-    <div className="relative group">
+    <div 
+      className="relative group"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
-        onClick={() => onToggle(!isOpen)}
         className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 font-medium ${
           isCurrentCategory 
             ? 'text-green-600 bg-green-50' 
@@ -55,11 +69,7 @@ function DropdownMenu({ title, data, isOpen, onToggle, closeDropdowns }) {
       </button>
       
       {isOpen && (
-        <div
-          className="absolute top-full left-0 mt-2 w-96 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden"
-          onMouseEnter={() => onToggle(true)}
-          onMouseLeave={() => onToggle(false)}
-        >
+        <div className="absolute top-full left-0 mt-0 w-96 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
           <div className="p-4">
             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <IconComponent size={20} className="text-green-600" />
@@ -184,4 +194,3 @@ function CategorySidebar({ currentMainCategory, currentSubCategory, currentSubSu
 }
 
 export { DropdownMenu, CategorySidebar }
-

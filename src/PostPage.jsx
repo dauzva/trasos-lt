@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Clock, Tag, Share2, BookOpen } from 'lucide-react'
 import PostCard from './components/PostCard'
 import { InArticleAd, DisplayAd } from './components/GoogleAds'
+import { getMockPostById, getMockPostsByCategory } from './data/mock-posts'
 
 function PostPage() {
   const { postId } = useParams()
@@ -17,6 +18,7 @@ function PostPage() {
       setLoading(true)
       setError(null)
       try {
+        // Try to fetch from API first
         const response = await fetch(`/.netlify/functions/get-post?id=${postId}`)
         const data = await response.json()
         if (data.success) {
@@ -24,22 +26,44 @@ function PostPage() {
           // Fetch related posts after main post is loaded
           fetchRelatedPosts(data.post)
         } else {
-          setError(data.error || 'Post not found')
+          // Fallback to mock data for local development
+          const mockPost = getMockPostById(postId)
+          if (mockPost) {
+            setPost(mockPost)
+            fetchRelatedPosts(mockPost)
+          } else {
+            setError('Post not found')
+          }
         }
       } catch (err) {
-        setError('Klaida gaunant straipsnį')
+        // Fallback to mock data for local development
+        const mockPost = getMockPostById(postId)
+        if (mockPost) {
+          setPost(mockPost)
+          fetchRelatedPosts(mockPost)
+        } else {
+          setError('Klaida gaunant straipsnį')
+        }
       } finally {
         setLoading(false)
       }
     }
     async function fetchRelatedPosts(post) {
       if (!post || !post.category) return setRelatedPosts([])
-      const res = await fetch(`/.netlify/functions/get-posts?category=${encodeURIComponent(post.category)}&limit=4`)
-      const data = await res.json()
-      if (data.success && Array.isArray(data.posts)) {
-        setRelatedPosts(data.posts.filter(p => p.id !== post.id).slice(0, 3))
-      } else {
-        setRelatedPosts([])
+      try {
+        const res = await fetch(`/.netlify/functions/get-posts?category=${encodeURIComponent(post.category)}&limit=4`)
+        const data = await res.json()
+        if (data.success && Array.isArray(data.posts)) {
+          setRelatedPosts(data.posts.filter(p => p.id !== post.id).slice(0, 3))
+        } else {
+          // Fallback to mock data
+          const mockRelated = getMockPostsByCategory(post.category).filter(p => p.id !== post.id).slice(0, 3)
+          setRelatedPosts(mockRelated)
+        }
+      } catch (err) {
+        // Fallback to mock data
+        const mockRelated = getMockPostsByCategory(post.category).filter(p => p.id !== post.id).slice(0, 3)
+        setRelatedPosts(mockRelated)
       }
     }
     fetchPost()
@@ -112,48 +136,138 @@ function PostPage() {
     return content.replace(/^---[\s\S]*?---\s*/, '');
   }
 
-  // Convert markdown-like content to HTML (basic implementation)
+  // Convert markdown-like content to HTML (improved implementation)
   const formatContent = (content) => {
     const cleanContent = stripFrontmatter(content);
-    return cleanContent
-      .split('\n\n')
-      .map((paragraph, index) => {
-        if (paragraph.startsWith('# ')) {
-          return <h1 key={index} className="text-3xl font-bold text-gray-800 mb-6 mt-8">{paragraph.slice(2)}</h1>
+    
+    // Process content line by line to handle markdown properly
+    const lines = cleanContent.split('\n');
+    const elements = [];
+    let currentParagraph = [];
+    let listItems = [];
+    let listType = null;
+    
+    const flushParagraph = () => {
+      if (currentParagraph.length > 0) {
+        const text = currentParagraph.join(' ');
+        if (text.trim()) {
+          elements.push(
+            <p key={elements.length} className="text-gray-700 leading-relaxed mb-4">
+              {formatInlineText(text)}
+            </p>
+          );
         }
-        if (paragraph.startsWith('## ')) {
-          return <h2 key={index} className="text-2xl font-semibold text-gray-800 mb-4 mt-6">{paragraph.slice(3)}</h2>
-        }
-        if (paragraph.startsWith('### ')) {
-          return <h3 key={index} className="text-xl font-semibold text-gray-800 mb-3 mt-5">{paragraph.slice(4)}</h3>
-        }
-        if (paragraph.startsWith('- ')) {
-          const items = paragraph.split('\n').filter(line => line.startsWith('- '))
-          return (
-            <ul key={index} className="list-disc list-inside mb-4 space-y-1">
-              {items.map((item, i) => (
-                <li key={i} className="text-gray-700">{item.slice(2)}</li>
+        currentParagraph = [];
+      }
+    };
+    
+    const flushList = () => {
+      if (listItems.length > 0) {
+        if (listType === 'ul') {
+          elements.push(
+            <ul key={elements.length} className="list-disc list-inside mb-4 space-y-1">
+              {listItems.map((item, i) => (
+                <li key={i} className="text-gray-700">{formatInlineText(item)}</li>
               ))}
             </ul>
-          )
-        }
-        if (paragraph.startsWith('1. ')) {
-          const items = paragraph.split('\n').filter(line => /^\d+\. /.test(line))
-          return (
-            <ol key={index} className="list-decimal list-inside mb-4 space-y-1">
-              {items.map((item, i) => (
-                <li key={i} className="text-gray-700">{item.replace(/^\d+\. /, '')}</li>
+          );
+        } else if (listType === 'ol') {
+          elements.push(
+            <ol key={elements.length} className="list-decimal list-inside mb-4 space-y-1">
+              {listItems.map((item, i) => (
+                <li key={i} className="text-gray-700">{formatInlineText(item)}</li>
               ))}
             </ol>
-          )
+          );
         }
-        if (paragraph.trim()) {
-          return <p key={index} className="text-gray-700 leading-relaxed mb-4">{paragraph}</p>
+        listItems = [];
+        listType = null;
+      }
+    };
+    
+    const formatInlineText = (text) => {
+      // Handle bold text **text**
+      text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Handle italic text *text*
+      text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      
+      // Convert to React elements
+      const parts = text.split(/(<strong>.*?<\/strong>|<em>.*?<\/em>)/);
+      return parts.map((part, i) => {
+        if (part.startsWith('<strong>')) {
+          return <strong key={i}>{part.replace(/<\/?strong>/g, '')}</strong>;
+        } else if (part.startsWith('<em>')) {
+          return <em key={i}>{part.replace(/<\/?em>/g, '')}</em>;
         }
-        return null
-      })
-      .filter(Boolean)
-  }
+        return part;
+      });
+    };
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Handle headers
+      if (line.startsWith('### ')) {
+        flushParagraph();
+        flushList();
+        elements.push(
+          <h3 key={elements.length} className="text-xl font-semibold text-gray-800 mb-3 mt-5">
+            {line.slice(4)}
+          </h3>
+        );
+      } else if (line.startsWith('## ')) {
+        flushParagraph();
+        flushList();
+        elements.push(
+          <h2 key={elements.length} className="text-2xl font-semibold text-gray-800 mb-4 mt-6">
+            {line.slice(3)}
+          </h2>
+        );
+      } else if (line.startsWith('# ')) {
+        flushParagraph();
+        flushList();
+        elements.push(
+          <h1 key={elements.length} className="text-3xl font-bold text-gray-800 mb-6 mt-8">
+            {line.slice(2)}
+          </h1>
+        );
+      }
+      // Handle unordered lists
+      else if (line.startsWith('- ')) {
+        flushParagraph();
+        if (listType !== 'ul') {
+          flushList();
+          listType = 'ul';
+        }
+        listItems.push(line.slice(2));
+      }
+      // Handle ordered lists
+      else if (/^\d+\. /.test(line)) {
+        flushParagraph();
+        if (listType !== 'ol') {
+          flushList();
+          listType = 'ol';
+        }
+        listItems.push(line.replace(/^\d+\. /, ''));
+      }
+      // Handle empty lines
+      else if (line.trim() === '') {
+        flushParagraph();
+        flushList();
+      }
+      // Handle regular text
+      else {
+        flushList();
+        currentParagraph.push(line);
+      }
+    }
+    
+    // Flush any remaining content
+    flushParagraph();
+    flushList();
+    
+    return elements;
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

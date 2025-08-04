@@ -1,7 +1,7 @@
 // Sample posts data - in a real app this would come from an API or CMS
 export const samplePosts = {
-  'trąšos': {
-'vaismedžiams': [
+  'trasos': {
+    'vaismedziams': [
       {
         id: 1,
         title: 'Obelų tręšimas pavasarį: kada ir kaip tręšti',
@@ -51,7 +51,7 @@ Organinės trąšos yra puikus papildymas prie mineralinių:
         category: 'Vaismedžiai',
         image: '/images/apple-fertilizing.jpg',
         tags: ['obelės', 'pavasaris', 'tręšimas', 'azotinės trąšos'],
-    'kriaušėms': [
+    'kriausems': [
       {
             "id": 81238557791,
             "title": "Kriaušių tręšimas vasarą: praktiniai patarimai",
@@ -201,7 +201,7 @@ Mikroelementai, nors reikalingi nedideliais kiekiais, yra kritiškai svarbūs va
         tags: ['mikroelementai', 'trūkumas', 'diagnostika', 'geležis', 'cinkas']
       }
     ],
-    'daržovėms': [
+    'darzovems': [
       {
         id: 4,
         title: 'Pomidorų tręšimas šiltnamyje: geriausios praktikos',
@@ -346,7 +346,7 @@ Ekologiškame ūkyje tręšimas turi atitikti griežtus standartus, tačiau tai 
         tags: ['ekologiškas ūkis', 'organinės trąšos', 'kompostas', 'žalieji trąšai']
       }
     ],
-    'obelėms': [
+    'obelems': [
       {
         id: 6,
         title: 'Obelių tręšimas rudenį: pasiruošimas žiemai',
@@ -431,8 +431,8 @@ Rudens tręšimas yra kritiškai svarbus obelių žiemos atsparumui ir kitų met
       }
     ]
   },
-  'sėklos': {
-    'daržovių-sėklos': [
+  'seklos': {
+    'darzoviu-seklos': [
       {
         id: 7,
         title: 'Sėklų ruošimas sodinimui: beicavimas ir kietinimas',
@@ -539,7 +539,7 @@ Kietinimas padidina sėklų atsparumą nepalankioms sąlygoms ir pagerina dygim�
         tags: ['sėklos', 'beicavimas', 'kietinimas', 'dygimas', 'paruošimas']
       }
     ],
-    'pomidorų': [
+    'pomidoru': [
       {
         id: 8,
         title: 'Pomidorų sėklų auginimas: nuo sėjimo iki sodinukų',
@@ -666,9 +666,29 @@ Pomidorų sodinukų auginimas iš sėklų - tai puikus būdas užtikrinti kokyb�
 
 // Helper function to get posts by category
 export const getPostsByCategory = (mainCategory, subCategory, subSubCategory = null) => {
-  const categoryKey = mainCategory?.toLowerCase()
-  const subCategoryKey = subCategory?.toLowerCase()
-  const subSubCategoryKey = subSubCategory?.toLowerCase()
+  // Convert category names to slug format (remove diacritics)
+  const toSlug = (str) => {
+    if (!str) return str;
+    return str
+      .toLowerCase()
+      .replace(/ą/g, 'a')
+      .replace(/č/g, 'c')
+      .replace(/ę/g, 'e')
+      .replace(/ė/g, 'e')
+      .replace(/į/g, 'i')
+      .replace(/š/g, 's')
+      .replace(/ų/g, 'u')
+      .replace(/ū/g, 'u')
+      .replace(/ž/g, 'z')
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
+
+  const categoryKey = toSlug(mainCategory);
+  const subCategoryKey = toSlug(subCategory);
+  const subSubCategoryKey = toSlug(subSubCategory);
   
   if (subSubCategoryKey && samplePosts[categoryKey]?.[subSubCategoryKey]) {
     return samplePosts[categoryKey][subSubCategoryKey]

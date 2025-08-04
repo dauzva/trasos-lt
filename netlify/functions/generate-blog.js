@@ -22,9 +22,9 @@ import { allCategorySlugs } from '../../src/data/category-mapping.js';
 async function savePost(postData) {
   try {
     const result = await sql`
-      INSERT INTO posts (title, content, category, published, image_url)
-      VALUES (${postData.title}, ${postData.content}, ${postData.category}, ${postData.published}, ${postData.image_url})
-      RETURNING id, title, content, category, created_at
+      INSERT INTO posts (title, content, category, subcategory, tags, english_title, author, date, published, image_url)
+      VALUES (${postData.title}, ${postData.content}, ${postData.category}, ${postData.subcategory}, ${postData.tags}, ${postData.english_title}, ${postData.author}, ${postData.date}, ${postData.published}, ${postData.image_url})
+      RETURNING id, title, content, category, subcategory, tags, english_title, author, date, created_at
     `;
     
     console.log('Post saved to Neon DB:', result[0].id);
@@ -193,83 +193,67 @@ export default async function handler(event) {
     category: ${randomCategory}
     subcategory: ${randomSubcategory}
     tags: [4–6 Lithuanian SEO keywords, comma-separated]
-    english_title: [Natural English translation of the title]
+    english_title: [Natural English translation of the title for image generation]
     date: ${today}
     ---
 
     # [Same as title]
 
-    ## Introduction
-    ...
+    [Introduction paragraph explaining importance and context]
 
-    ## Main Information
-    ...
+    ## [Section heading 1]
+    [Detailed information with practical advice]
 
-    ## Conclusions
-    ...
+    ### [Subsection if needed]
+    [More specific details]
 
-    ## Practical Tips
-    - Tip 1
-    - Tip 2
-    ...
+    ## [Section heading 2]
+    [Additional important information]
+
+    ### [Another subsection]
+    - **Bold item**: Description
+    - **Another item**: Description
+
+    ## [Section heading 3]
+    [Practical methods or techniques]
+
+    1. **Step one** - detailed explanation
+    2. **Step two** - detailed explanation
+    3. **Step three** - detailed explanation
+
+    ## Svarbu atsiminti
+
+    - Important point 1
+    - Important point 2
+    - Important point 3
+    - Important point 4
+    - Important point 5
     \`\`\`
 
-    ### CONTENT STRUCTURE
-    1. **Introduction** – Explain why this topic matters in Lithuanian gardening or farming.
-    2. **Main Information** – Cover types, methods, timing, best practices, and science-based advice.
-    3. **Conclusions** – Summarize key benefits and outcomes.
-    4. **Practical Tips** – Provide 5 actionable, real-world tips in a bullet list.
+    ### CONTENT REQUIREMENTS
+    1. **Length**: 800-1200 words of substantial, informative content
+    2. **Structure**: Use proper markdown with headers (##, ###), bold text (**text**), and lists
+    3. **Language**: All content in Lithuanian except english_title
+    4. **english_title**: Must be accurate English translation for image generation (e.g., "Apple Tree Fertilization in Spring")
+    5. **Tone**: Professional but accessible, like an experienced farmer sharing knowledge
+    6. **Content**: Science-based advice with practical applications
 
     ### TECHNICAL RULES
-    - Language: Lithuanian for title, content, and \`tags\`.
-    - \`english_title\`: A fluent, accurate English translation of the title — used to generate images (e.g., via DALL·E).
-    - Use Markdown: at least two H2 headings (##), and lists where helpful.
-    - \`tags\`: 4–6 Lithuanian SEO keywords (e.g., „obuoliai, tręšimas, pavasaris“).
-    - Do **not** include: image, slug, excerpt — these are auto-generated later.
-    - Never add comments, disclaimers, or text outside the Markdown block.
+    - Remove ALL frontmatter metadata from the main content body
+    - Use proper markdown formatting: headers, bold text, lists
+    - Include seasonal timing, specific products, dosages, and methods
+    - End with "Svarbu atsiminti" section with 5 practical tips
+    - Tags should be relevant Lithuanian SEO keywords
+    - Never include image URLs, slugs, or excerpts in frontmatter
 
-    ### SEO & STYLE
-    - Use natural keyword integration (category, subcategory, season, methods).
-    - Title should be compelling and search-friendly.
-    - Tone: friendly, informative, trustworthy — like a local expert advising a farmer or gardener.
+    ### CONTENT FOCUS
+    - Provide specific, actionable advice
+    - Include timing recommendations (seasons, months)
+    - Mention specific fertilizer types, application rates
+    - Address common problems and solutions
+    - Use scientific backing but explain in simple terms
 
-    ### EXAMPLE (reference only — do not copy)
-    \`\`\`markdown
-    ---
-    title: Kaip tinkamai tręšti obelis pavasarį: efektyvūs būdai ir geriausios trąšos
-    author: Virtualus žemės ūkio ekspertas
-    category: Trąšos
-    subcategory: obelėms
-    tags: obelės, tręšimas, pavasaris, organinės trąšos, NPK, sodininkystė
-    english_title: How to Properly Fertilize Apple Trees in Spring: Effective Methods and Best Fertilizers
-    date: 2025-04-05
-    ---
-
-    # Kaip tinkamai tręšti obelis pavasarį: efektyvūs būdai ir geriausios trąšos
-
-    ## Įvadas
-    Pavasaris – svarbiausias metų laikas obelių priežiūrai. Šiuo metu medžiai atsigauna po žiemos, formuojasi žiedai ir prasideda aktyvi augimo faza...
-
-    ## Kodėl pavasario tręšimas yra svarbus
-    Obelims reikia didelio azoto kiekio ankstyvą pavasarį, kad skatintų lapų ir jaunų ūglių augimą...
-
-    ### Geriausios trąšos obelims pavasarį
-    - Skystos azoto trąšos – greitas poveikis
-    - Kompleksinės NPK 15-5-15 formulės – subalansuotas mitybos šaltinis
-    - Kompostas – organinis variantas, pagerinantis dirvožemio struktūrą
-
-    ## Išvados
-    Teisingas tręšimo grafikas ir trąšų pasirinkimas yra esminiai obelių sveikatai ir derlingumui...
-
-    ## Praktiniai patarimai
-    - Tręškite obelis kovo–balandžio mėn., kol dar nėra žydėjimo.
-    - Venkite perdozavimo azotu – tai gali sumažinti žydėjimą.
-    - Po tręšimo būtinai uždirbkite trąšas arba gerai laistykit.
-    - Naudokite lietaus ar balto vandens maišymui, kad išvengtumėte cheminės reakcijos.
-    - Reguliariai stebėkite lapų spalvą – pagal ją galima nustatyti trūkstamas maistines medžiagas.
-    \`\`\`
-
-    Now generate the blog post for category: "${randomCategory}", subcategory: "${randomSubcategory}". Output only the Markdown block.`
+    Now generate a blog post for category: "${randomCategory}", subcategory: "${randomSubcategory}". Output ONLY the markdown block with no additional text.`
         },
         {
           "role": "user",
@@ -303,16 +287,21 @@ export default async function handler(event) {
         const slug = frontMatter.slug || generateSlug(title);
         const excerpt = frontMatter.excerpt || extractExcerpt(body);
         const id = frontMatter.id || generatePostId();
+        
         // Use only the english_title for Unsplash image search if available, fallback to category/title
         let imageSearch = metadata.english_title || metadata.category || title || 'agriculture';
         imageSearch = Array.isArray(imageSearch) ? imageSearch.join(',') : imageSearch;
         const imageUrl = await fetchStockImage(imageSearch);
+        
+        // Clean content by removing frontmatter and keeping only the body
+        const cleanContent = body || fullContent.replace(/^---[\s\S]*?---\s*/, '');
+        
         const postData = {
           id,
-          title,
+          title: metadata.title || title,
           slug,
           excerpt,
-          content: fullContent,
+          content: cleanContent, // Use cleaned content without frontmatter
           category: metadata.category || randomCategory,
           subcategory: metadata.subcategory || randomSubcategory,
           tags: metadata.tags || '',
