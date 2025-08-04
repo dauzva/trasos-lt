@@ -113,9 +113,13 @@ async function fetchStockImage(keyword) {
     }
     // Use Unsplash API to search for a relevant photo in English
     const query = encodeURIComponent(keyword);
-    const response = await fetch(`https://api.unsplash.com/photos/random?query=${query}&orientation=landscape&client_id=${accessKey}`);
+    const url = `https://api.unsplash.com/photos/random?query=${query}&orientation=landscape&client_id=${accessKey}`;
+    console.log('Fetching Unsplash image with query:', url);
+    const response = await fetch(url);
+    console.log('Unsplash response status:', response.status);
     if (!response.ok) return null;
     const data = await response.json();
+    console.log('Unsplash response data:', data);
     return data.urls && data.urls.regular ? data.urls.regular : null;
   } catch (e) {
     console.error('Error fetching stock image:', e);
