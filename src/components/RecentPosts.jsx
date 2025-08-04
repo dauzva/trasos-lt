@@ -204,7 +204,7 @@ function RecentPosts() {
               <CardDescription className="flex items-center gap-4 text-xs">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {formatDate(post.timestamp)}
+                  {formatDate(post.date)}
                 </span>
                 <span className="flex items-center gap-1">
                   <User className="h-3 w-3" />
