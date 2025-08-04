@@ -1,6 +1,7 @@
 // netlify/functions/scheduled-blog-generator.js
 import OpenAI from 'openai';
-import { neon } from '@neondatabase/serverless';
+import { neon } from '@netlify/neon';
+import { categoryMapping } from '../../src/data/category-mapping.js';
 
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
@@ -12,10 +13,10 @@ const openai = new OpenAI({
 });
 
 // Initialize Neon client
-const sql = neon(process.env.NETLIFY_DATABASE_URL);
+const sql = neon();
 
 // Available categories for random selection (ASCII-compatible)
-import { categoryMapping } from '../../src/data/category-mapping.js';
+import { allCategorySlugs } from '../../src/data/category-mapping.js';
 
 // Utility functions from generate-blog.js
 function parseFrontMatter(content) {
@@ -144,9 +145,24 @@ function stripCodeBlockMarkers(md) {
 async function savePost(postData) {
   try {
     const result = await sql`
-      INSERT INTO posts (title, content, category, published, image_url)
-      VALUES (${postData.title}, ${postData.content}, ${postData.category}, ${postData.published}, ${postData.image_url})
-      RETURNING id, title, category, created_at
+      INSERT INTO posts (
+        id, slug, title, excerpt, content, category, subcategory, tags, english_title, author, date, published, image_url
+      ) VALUES (
+        ${postData.id},
+        ${postData.slug},
+        ${postData.title},
+        ${postData.excerpt},
+        ${postData.content},
+        ${postData.category},
+        ${postData.subcategory},
+        ${postData.tags},
+        ${postData.english_title},
+        ${postData.author},
+        ${postData.date},
+        ${postData.published},
+        ${postData.image_url}
+      )
+      RETURNING id, slug, title, content, category, created_at
     `;
     
     console.log('Post saved to Neon DB:', result[0].id);
@@ -179,150 +195,202 @@ async function fetchStockImage(keyword) {
 // This function runs automatically based on cron schedule
 export default async function handler(event) {
   try {
-    console.log('Starting scheduled blog generation...');
+    // Pick random category and subcategory
     const { randomCategory, randomSubcategory } = getRandomCategoryAndSubcategory(categoryMapping);
-    const today = new Date().toISOString().split("T")[0];
-    const completion = await openai.chat.completions.create({
+    // const categories = allCategorySlugs;
+    // const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+
+    // Prepare OpenAI streaming request
+    // Assume these are provided by your code
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+    // Prepare OpenAI streaming request
+    const stream = await openai.chat.completions.create({
       model: "openrouter/horizon-beta",
       messages: [
         {
           "role": "system",
-          "content": `You are \"Virtualus žemės ūkio ekspertas\" — a professional Lithuanian-language content creator for an agricultural wiki.
+          "content": `You are "Virtualus žemės ūkio ekspertas" — a professional Lithuanian-language content creator for an agricultural wiki.
 
-                           ### TASK
-                           Write a 500-word blog post in Lithuanian about a specific agricultural topic defined by:
-                           - Category: "${randomCategory}"
-                           - Subcategory: "${randomSubcategory}"
+    ### TASK
+    Write a 600-word blog post in Lithuanian about a specific agricultural topic defined by:
+    - Category: "${randomCategory}"
+    - Subcategory: "${randomSubcategory}"
 
-                           Generate a complete Markdown file with YAML frontmatter and content. Output only the Markdown block — no explanations, no extra text.
+    Generate a complete Markdown file with YAML frontmatter and content. Output only the Markdown block — no explanations, no extra text.
 
-                           ### OUTPUT FORMAT
-                           \`\`\`markdown
-                           ---
-                           title: [Natural Lithuanian title]
-                           author: Virtualus žemės ūkio ekspertas
-                           category: ${randomCategory}
-                           subcategory: ${randomSubcategory}
-                           tags: [4–6 Lithuanian SEO keywords, comma-separated]
-                           english_title: [Natural English translation of the title for image generation]
-                           date: ${today}
-                           ---
+    ### OUTPUT FORMAT
+    \`\`\`markdown
+    ---
+    title: [Natural Lithuanian title]
+    author: Virtualus žemės ūkio ekspertas
+    category: ${randomCategory}
+    subcategory: ${randomSubcategory}
+    tags: [4–6 Lithuanian SEO keywords, comma-separated]
+    english_title: [Natural English translation of the title for image generation]
+    date: ${today}
+    ---
 
-                           # [Same as title]
+    # [Same as title]
 
-                           [Introduction paragraph explaining importance and context]
+    [Introduction paragraph explaining importance and context]
 
-                           ## [Section heading 1]
-                           [Detailed information with practical advice]
+    ## [Section heading 1]
+    [Detailed information with practical advice]
 
-                           ### [Subsection if needed]
-                           [More specific details]
+    ### [Subsection if needed]
+    [More specific details]
 
-                           ## [Section heading 2]
-                           [Additional important information]
+    ## [Section heading 2]
+    [Additional important information]
 
-                           ### [Another subsection]
-                           - **Bold item**: Description
-                           - **Another item**: Description
+    ### [Another subsection]
+    - **Bold item**: Description
+    - **Another item**: Description
 
-                           ## [Section heading 3]
-                           [Practical methods or techniques]
+    ## [Section heading 3]
+    [Practical methods or techniques]
 
-                           1. **Step one** - detailed explanation
-                           2. **Step two** - detailed explanation
-                           3. **Step three** - detailed explanation
+    1. **Step one** - detailed explanation
+    2. **Step two** - detailed explanation
+    3. **Step three** - detailed explanation
 
-                           ## Svarbu atsiminti
+    ## Svarbu atsiminti
 
-                           - Important point 1
-                           - Important point 2
-                           - Important point 3
-                           - Important point 4
-                           - Important point 5
-                           \`\`\`
+    - Important point 1
+    - Important point 2
+    - Important point 3
+    - Important point 4
+    - Important point 5
+    \`\`\`
 
-                           ### CONTENT REQUIREMENTS
-                           1. **Length**: 500-700 words of substantial, informative content
-                           2. **Structure**: Use proper markdown with headers (##, ###), bold text (**text**), and lists
-                           3. **Language**: All content in Lithuanian except english_title
-                           4. **english_title**: Must be accurate English translation for image generation (e.g., "Apple Tree Fertilization in Spring")
-                           5. **Tone**: Professional but accessible, like an experienced farmer sharing knowledge
-                           6. **Content**: Science-based advice with practical applications
+    ### CONTENT REQUIREMENTS
+    1. **Length**: 600-700 words of substantial, informative content
+    2. **Structure**: Use proper markdown with headers (##, ###), bold text (**text**), and lists
+    3. **Language**: All content in Lithuanian except english_title
+    4. **english_title**: Must be accurate English translation for image generation (e.g., "Apple Tree Fertilization in Spring")
+    5. **Tone**: Professional but accessible, like an experienced farmer sharing knowledge
+    6. **Content**: Science-based advice with practical applications
 
-                           ### TECHNICAL RULES
-                           - Remove ALL frontmatter metadata from the main content body
-                           - Use proper markdown formatting: headers, bold text, lists
-                           - Include seasonal timing, specific products, dosages, and methods
-                           - End with "Svarbu atsiminti" section with 5 practical tips
-                           - Tags should be relevant Lithuanian SEO keywords
-                           - Never include image URLs, slugs, or excerpts in frontmatter
+    ### TECHNICAL RULES
+    - Remove ALL frontmatter metadata from the main content body
+    - Use proper markdown formatting: headers, bold text, lists
+    - Include seasonal timing, specific products, dosages, and methods
+    - End with "Svarbu atsiminti" section with 5 practical tips
+    - Tags should be relevant Lithuanian SEO keywords
+    - Never include image URLs, slugs, or excerpts in frontmatter
 
-                           ### CONTENT FOCUS
-                           - Provide specific, actionable advice
-                           - Include timing recommendations (seasons, months)
-                           - Mention specific fertilizer types, application rates
-                           - Address common problems and solutions
-                           - Use scientific backing but explain in simple terms
+    ### CONTENT FOCUS
+    - Provide specific, actionable advice
+    - Include timing recommendations (seasons, months)
+    - Mention specific fertilizer types, application rates
+    - Address common problems and solutions
+    - Use scientific backing but explain in simple terms
 
-                           Now generate a blog post for category: "${randomCategory}", subcategory: "${randomSubcategory}". Output ONLY the markdown block with no additional text.`
-                               },
-                               {
-                                 "role": "user",
-                                 "content": `Parašyk trumpa 500 žodžių straipsnį lietuvių kalba žemės ūkio wiki blogui apie temą: kategorija – "${randomCategory}", subkategorija – "${randomSubcategory}". Sugeneruok pilną Markdown failo turinį su frontmatter ir straipsniu. Laikykis visų nurodytų taisyklių.`
-                               }
-                             ],
-                             max_tokens: 4000,
-                             temperature: 0.75,
-                             top_p: 0.95,
-                             frequency_penalty: 0.2,
-                             presence_penalty: 0.2,
-                             repeat_penalty: 1.0,
-                             stream: true
+    Now generate a blog post for category: "${randomCategory}", subcategory: "${randomSubcategory}". Output ONLY the markdown block with no additional text.`
+        },
+        {
+          "role": "user",
+          "content": `Parašyk trumpa 500 žodžių straipsnį lietuvių kalba žemės ūkio wiki blogui apie temą: kategorija – "${randomCategory}", subkategorija – "${randomSubcategory}". Sugeneruok pilną Markdown failo turinį su frontmatter ir straipsniu. Laikykis visų nurodytų taisyklių.`
+        }
+      ],
+      max_tokens: 4000,
+      temperature: 0.75,
+      top_p: 0.95,
+      frequency_penalty: 0.2,
+      presence_penalty: 0.2,
+      repeat_penalty: 1.0,
+      stream: true
     });
 
-    if (!completion.choices || !completion.choices[0] || !completion.choices[0].message || !completion.choices[0].message.content) {
-      throw new Error('OpenAI completion did not return valid content.');
-    }
+    let fullContent = '';
+    const encoder = new TextEncoder();
+    // Logging start of stream
+    console.log('Starting to read OpenAI stream...');
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices?.[0]?.delta?.content || '';
+            // Log each chunk received
+            console.log('Received chunk:', content);
+            if (content) {
+              controller.enqueue(encoder.encode(content));
+              fullContent += content;
+            }
+          }
+          // Log after stream ends
+          console.log('Stream ended. Full content length:', fullContent.length);
+        } catch (err) {
+          // Log any error during streaming
+          console.error('Error while streaming:', err);
+        }
+        // Clean content by removing code block markers, frontmatter, and keeping only the body
+        const aiContent = stripCodeBlockMarkers(fullContent);
+        const { frontMatter, body } = parseFrontMatter(aiContent);
+        const metadata = extractMetadata(aiContent, randomCategory);
+        const title = metadata.title;
+        // Generate slug from title if not present
+        const safeTitle = title || metadata.title || 'straipsnis';
+        const slug = (frontMatter.slug && String(frontMatter.slug).trim()) || generateSlug(safeTitle);
+        // Use only the body (no frontmatter) for content
+        const contentBody = body || aiContent.replace(/^---[\s\S]*?---/, '').trim();
+        const excerpt = frontMatter.excerpt || extractExcerpt(contentBody);
+        const id = frontMatter.id || generatePostId();
+        // Use only the english_title for Unsplash image search if available, fallback to category/title
+        let imageSearch = metadata.english_title || metadata.category || title || 'agriculture';
+        imageSearch = Array.isArray(imageSearch) ? imageSearch.join(',') : imageSearch;
+        const imageUrl = await fetchStockImage(imageSearch);
 
-    let fullContent = completion.choices[0].message.content;
-    const aiContent = stripCodeBlockMarkers(fullContent);
-    const { frontMatter, body } = parseFrontMatter(aiContent);
-    const metadata = extractMetadata(aiContent, randomCategory);
-    const title = metadata.title;
-    const safeTitle = title || metadata.title || 'straipsnis';
-    const slug = (frontMatter.slug && String(frontMatter.slug).trim()) || generateSlug(safeTitle);
-    const contentBody = body || aiContent.replace(/^---[\s\S]*?---/, '').trim();
-    const excerpt = frontMatter.excerpt || extractExcerpt(contentBody);
-    const id = frontMatter.id || generatePostId();
-    let imageSearch = metadata.english_title || metadata.category || title || 'agriculture';
-    imageSearch = Array.isArray(imageSearch) ? imageSearch.join(',') : imageSearch;
-    const imageUrl = await fetchStockImage(imageSearch);
-    const cleanContent = body || aiContent.replace(/^---[\s\S]*?---\s*/, '');
-    const postData = {
-      id,
-      title: metadata.title || title,
-      slug,
-      excerpt,
-      content: cleanContent,
-      category: metadata.category || randomCategory,
-      subcategory: metadata.subcategory || randomSubcategory,
-      tags: metadata.tags || '',
-      english_title: metadata.english_title || '',
-      author: metadata.author || 'Virtualus žemės ūkio ekspertas',
-      date: metadata.date || new Date().toISOString().slice(0, 10),
-      published: true,
-      image_url: imageUrl || null
-    };
-    await savePost(postData);
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true, message: 'Scheduled blog post generated and saved.' })
-    };
+        // Clean content by removing frontmatter and keeping only the body
+        const cleanContent = body || aiContent.replace(/^---[\s\S]*?---\s*/, '');
+
+        const postData = {
+          id,
+          title: metadata.title || title,
+          slug,
+          excerpt,
+          content: cleanContent, // Use cleaned content without frontmatter
+          category: metadata.category || randomCategory,
+          subcategory: metadata.subcategory || randomSubcategory,
+          tags: metadata.tags || '',
+          english_title: metadata.english_title || '',
+          author: metadata.author || 'Virtualus žemės ūkio ekspertas',
+          date: metadata.date || new Date().toISOString().slice(0, 10),
+          published: true,
+          image_url: imageUrl || null
+        };
+        // Format the post for PostPage consumption
+        const formattedPost = {
+          id,
+          title: safeTitle,
+          content: contentBody,
+          category: metadata.category || randomCategory,
+          subcategory: metadata.subcategory || randomSubcategory,
+          tags: (metadata.tags || '').split(',').map(t => t.trim()).filter(Boolean),
+          author: metadata.author || 'Virtualus žemės ūkio ekspertas',
+          date: metadata.date || new Date().toISOString().slice(0, 10),
+          image: imageUrl || null,
+          timestamp: new Date().toISOString(),
+          excerpt
+        };
+        await savePost(postData);
+        controller.close();
+      }
+    });
+
+    return new Response(readable, {
+      status: 200,
+      headers: { 'Content-Type': 'text/markdown; charset=utf-8', 'Transfer-Encoding': 'chunked' }
+    });
   } catch (error) {
-    console.error('Error in scheduled blog generation:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ success: false, error: error.message })
-    };
+    console.error('Error generating blog post:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 }
