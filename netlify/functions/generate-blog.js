@@ -250,7 +250,7 @@ export default async function handler(event) {
           "content": `You are "Virtualus žemės ūkio ekspertas" — a professional Lithuanian-language content creator for an agricultural wiki.
 
     ### TASK
-    Write a 1000-word blog post in Lithuanian about a specific agricultural topic defined by:
+    Write a 600-word blog post in Lithuanian about a specific agricultural topic defined by:
     - Category: "${randomCategory}"
     - Subcategory: "${randomSubcategory}"
 
@@ -302,7 +302,7 @@ export default async function handler(event) {
     \`\`\`
 
     ### CONTENT REQUIREMENTS
-    1. **Length**: 800-1200 words of substantial, informative content
+    1. **Length**: 600-700 words of substantial, informative content
     2. **Structure**: Use proper markdown with headers (##, ###), bold text (**text**), and lists
     3. **Language**: All content in Lithuanian except english_title
     4. **english_title**: Must be accurate English translation for image generation (e.g., "Apple Tree Fertilization in Spring")
@@ -328,7 +328,7 @@ export default async function handler(event) {
         },
         {
           "role": "user",
-          "content": `Parašyk 1000 žodžių straipsnį lietuvių kalba žemės ūkio wiki blogui apie temą: kategorija – "${randomCategory}", subkategorija – "${randomSubcategory}". Sugeneruok pilną Markdown failo turinį su frontmatter ir straipsniu. Laikykis visų nurodytų taisyklių.`
+          "content": `Parašyk trumpa 500 žodžių straipsnį lietuvių kalba žemės ūkio wiki blogui apie temą: kategorija – "${randomCategory}", subkategorija – "${randomSubcategory}". Sugeneruok pilną Markdown failo turinį su frontmatter ir straipsniu. Laikykis visų nurodytų taisyklių.`
         }
       ],
       max_tokens: 4000,
