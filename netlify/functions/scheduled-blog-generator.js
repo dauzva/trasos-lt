@@ -177,17 +177,17 @@ async function fetchStockImage(keyword) {
 }
 
 // This function runs automatically based on cron schedule
-export default async function handler(req, res) {
+export default async function handler(event) {
   try {
     console.log('Starting scheduled blog generation...');
     const { randomCategory, randomSubcategory } = getRandomCategoryAndSubcategory(categoryMapping);
     const today = new Date().toISOString().split("T")[0];
     const completion = await openai.chat.completions.create({
-                             model: "openrouter/horizon-beta",
-                             messages: [
-                               {
-                                 "role": "system",
-                                 "content": `You are "Virtualus žemės ūkio ekspertas" — a professional Lithuanian-language content creator for an agricultural wiki.
+      model: "openrouter/horizon-beta",
+      messages: [
+        {
+          "role": "system",
+          "content": `You are \"Virtualus žemės ūkio ekspertas\" — a professional Lithuanian-language content creator for an agricultural wiki.
 
                            ### TASK
                            Write a 500-word blog post in Lithuanian about a specific agricultural topic defined by:
@@ -278,7 +278,11 @@ export default async function handler(req, res) {
                              presence_penalty: 0.2,
                              repeat_penalty: 1.0,
                              stream: true
-                           });
+    });
+
+    if (!completion.choices || !completion.choices[0] || !completion.choices[0].message || !completion.choices[0].message.content) {
+      throw new Error('OpenAI completion did not return valid content.');
+    }
 
     let fullContent = completion.choices[0].message.content;
     const aiContent = stripCodeBlockMarkers(fullContent);
@@ -310,9 +314,15 @@ export default async function handler(req, res) {
       image_url: imageUrl || null
     };
     await savePost(postData);
-    res.status(200).json({ success: true, message: 'Scheduled blog post generated and saved.' });
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, message: 'Scheduled blog post generated and saved.' })
+    };
   } catch (error) {
     console.error('Error in scheduled blog generation:', error);
-    res.status(500).json({ success: false, error: error.message });
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ success: false, error: error.message })
+    };
   }
 }
