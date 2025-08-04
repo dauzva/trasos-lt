@@ -338,14 +338,25 @@ export default async function handler(event) {
 
     let fullContent = '';
     const encoder = new TextEncoder();
+    // Logging start of stream
+    console.log('Starting to read OpenAI stream...');
     const readable = new ReadableStream({
       async start(controller) {
-        for await (const chunk of stream) {
-          const content = chunk.choices?.[0]?.delta?.content || '';
-          if (content) {
-            controller.enqueue(encoder.encode(content));
-            fullContent += content;
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices?.[0]?.delta?.content || '';
+            // Log each chunk received
+            console.log('Received chunk:', content);
+            if (content) {
+              controller.enqueue(encoder.encode(content));
+              fullContent += content;
+            }
           }
+          // Log after stream ends
+          console.log('Stream ended. Full content length:', fullContent.length);
+        } catch (err) {
+          // Log any error during streaming
+          console.error('Error while streaming:', err);
         }
         // Clean content by removing code block markers, frontmatter, and keeping only the body
         const aiContent = stripCodeBlockMarkers(fullContent);
