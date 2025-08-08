@@ -269,6 +269,21 @@ function PostPage() {
     return elements;
   };
 
+  // Helper to normalize tags (handles [tag1, tag2] string, comma-separated, or array)
+  const normalizeTags = (tags) => {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags.filter(Boolean).map(t => t.trim()).filter(Boolean);
+    if (typeof tags === 'string') {
+      let str = tags.trim();
+      // Remove brackets if present
+      if (str.startsWith('[') && str.endsWith(']')) {
+        str = str.slice(1, -1);
+      }
+      return str.split(',').map(t => t.replace(/^['"]|['"]$/g, '').trim()).filter(Boolean);
+    }
+    return [];
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Back button */}
