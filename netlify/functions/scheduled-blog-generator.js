@@ -206,7 +206,7 @@ export default async function handler(event) {
 
     // Prepare OpenAI streaming request
     const stream = await openai.chat.completions.create({
-      model: "openrouter/horizon-beta",
+      model: process.env.OPENROUTER_MODEL || "openrouter/horizon-beta",
       messages: [
         {
           "role": "system",
