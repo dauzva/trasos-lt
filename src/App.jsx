@@ -86,15 +86,15 @@ function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               {/* Logo */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+              <Link to="/" className="flex items-center gap-3 group" aria-label="Pagrindinis puslapis">
+                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
                   <Leaf className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-800">Trąšos.lt</h1>
+                  <h1 className="text-xl font-bold text-gray-800 group-hover:text-green-700 transition-colors">Trąšos.lt</h1>
                   <p className="text-xs text-gray-500">Lietuvos žemės ūkio enciklopedija</p>
                 </div>
-              </div>
+              </Link>
               {/* Desktop Navigation */}
               <nav className="hidden lg:flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
                 {Object.entries(navigationData).map(([title, data]) => (
@@ -111,9 +111,9 @@ function App() {
               </nav>
               {/* Search and Mobile Menu */}
               <div className="flex items-center gap-3">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="hidden sm:flex items-center gap-2"
                   onClick={() => setSearchModalOpen(true)}
                 >
@@ -140,7 +140,7 @@ function App() {
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
         />
-        
+
         {/* Search Modal */}
         <SearchModal
           isOpen={searchModalOpen}
@@ -159,15 +159,15 @@ function App() {
                   Naršykite kategorijas aukščiau esančiame meniu arba naudokite paiešką.
                 </p>
               </div>
-              
+
               {/* Display Ad */}
               <div className="mb-12">
                 <DisplayAd />
               </div>
-              
+
               {/* Recent Posts */}
               <RecentPosts />
-              
+
               {/* Category Cards */}
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {Object.entries(navigationData).map(([title, data]) => {
@@ -235,7 +235,7 @@ function App() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Multiplex Ad */}
               <div className="mb-12">
                 <MultiplexAd />

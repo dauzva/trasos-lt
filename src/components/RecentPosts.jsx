@@ -185,6 +185,7 @@ function RecentPosts() {
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-2xl font-bold text-gray-800">Naujausi straipsniai</h3>
         <div className="flex gap-2">
+            {/*
           <button 
             onClick={fetchRecentPosts}
             disabled={loading}
@@ -193,23 +194,25 @@ function RecentPosts() {
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Atnaujinti
           </button>
-          <button 
-            onClick={generateNewPost}
-            disabled={generating}
-            className="text-green-600 hover:text-green-700 font-medium flex items-center gap-1 text-sm disabled:opacity-50"
-          >
-            {generating ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                Generuojama...
-              </>
-            ) : (
-              <>
-                Generuoti nauja
-                <ArrowRight size={16} />
-              </>
-            )}
-          </button>
+
+            <button
+              onClick={generateNewPost}
+              disabled={generating}
+              className="text-green-600 hover:text-green-700 font-medium flex items-center gap-1 text-sm disabled:opacity-50"
+            >
+              {generating ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Generuojama...
+                </>
+              ) : (
+                <>
+                  Generuoti nauja
+                  <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+            */}
         </div>
       </div>
       

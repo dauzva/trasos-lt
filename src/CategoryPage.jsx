@@ -52,6 +52,23 @@ function CategoryPage() {
     ? formatCategoryName(subCategory)
     : formatCategoryName(mainCategory)
 
+  // DEBUG: Log posts and error state
+  console.log('CategoryPage posts:', posts)
+  console.log('CategoryPage error:', error)
+
+  // Normalize posts: map image_url to image, ensure tags is array
+  const normalizedPosts = Array.isArray(posts)
+    ? posts.map(post => ({
+        ...post,
+        image: post.image || post.image_url || '',
+        tags: Array.isArray(post.tags)
+          ? post.tags
+          : typeof post.tags === 'string'
+            ? post.tags.split(',').map(t => t.trim()).filter(Boolean)
+            : []
+      }))
+    : [];
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumb */}
@@ -145,11 +162,11 @@ function CategoryPage() {
           {/* Posts */}
           {!loading && !error && (
             <>
-              {posts.length > 0 ? (
+              {normalizedPosts.length > 0 ? (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-semibold text-gray-800">
-                      Straipsniai ({total || posts.length})
+                      Straipsniai ({total || normalizedPosts.length})
                     </h2>
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <span>Rūšiuoti pagal:</span>
@@ -162,8 +179,8 @@ function CategoryPage() {
                   </div>
                   
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-                    {posts.map((post) => (
-                      <PostCard 
+                    {normalizedPosts.map((post) => (
+                      <PostCard
                         key={post.id} 
                         post={post} 
                         showImage={true}
@@ -203,4 +220,3 @@ function CategoryPage() {
 }
 
 export default CategoryPage
-

@@ -1,3 +1,4 @@
+// netlify/functions/search-posts.js
 import { neon } from '@netlify/neon';
 
 // Initialize Neon client

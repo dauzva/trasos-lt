@@ -8,6 +8,9 @@ function SearchModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const inputRef = useRef(null)
+  const cacheRef = useRef({})
+  const abortRef = useRef()
+  const debounceRef = useRef()
 
   // Focus input when modal opens
   useEffect(() => {
@@ -16,51 +19,67 @@ function SearchModal({ isOpen, onClose }) {
     }
   }, [isOpen])
 
-  // Search function with debouncing
+  // Search function with debouncing, abort, and cache
   useEffect(() => {
     if (!query || query.trim().length < 2) {
       setResults({ posts: [], categories: [] })
+      setError(null)
       setLoading(false)
       return
     }
 
-    const searchPosts = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        
-        const params = new URLSearchParams({
-          q: query.trim(),
-          limit: '8'
-        })
-        
-        const response = await fetch(`/netlify/functions/search-posts?${params}`)
+    const cacheKey = query.trim().toLowerCase()
+    // Only set loading true if not already loading for this query
+    if (!loading) setLoading(true)
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        
-        const data = await response.json()
-        
-        if (data.success) {
-          setResults({
-            posts: data.posts || [],
-            categories: data.categories || []
-          })
-        } else {
-          throw new Error(data.error || 'Failed to search')
-        }
-      } catch (err) {
-        console.error('Error searching:', err)
-        setError(err.message)
-        setResults({ posts: [], categories: [] })
-      } finally {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (abortRef.current) abortRef.current.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
+    setError(null)
+
+    debounceRef.current = setTimeout(() => {
+      // Check cache right before fetching, to avoid flicker
+      if (cacheRef.current[cacheKey]) {
+        setResults(cacheRef.current[cacheKey])
         setLoading(false)
+        setError(null)
+        return
       }
+      const searchPosts = async () => {
+        try {
+          const params = new URLSearchParams({
+            q: query.trim(),
+            limit: '8'
+          })
+          const response = await fetch(`/.netlify/functions/search-posts?${params}`, { signal: controller.signal, cache: 'force-cache' })
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+          const data = await response.json()
+          if (data.success) {
+            const resultObj = {
+              posts: data.posts || [],
+              categories: data.categories || []
+            }
+            setResults(resultObj)
+            cacheRef.current[cacheKey] = resultObj
+          } else {
+            throw new Error(data.error || 'Search failed')
+          }
+        } catch (err) {
+          if (err.name === 'AbortError') return
+          setError(err.message)
+          setResults({ posts: [], categories: [] })
+        } finally {
+          setLoading(false)
+        }
+      }
+      searchPosts()
+    }, 250) // Increase debounce to 250ms for smoother UX
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      if (abortRef.current) abortRef.current.abort()
     }
-
-    const timeoutId = setTimeout(searchPosts, 300) // Debounce search
-    return () => clearTimeout(timeoutId)
   }, [query])
 
   // Handle escape key
@@ -83,6 +102,53 @@ function SearchModal({ isOpen, onClose }) {
     setQuery('')
     setResults({ posts: [], categories: [] })
     onClose()
+  }
+
+  // Helper to highlight search term in text and show a snippet around the first match
+  const highlightText = (text, term, isContent = false) => {
+    if (!term || !text) return text
+    if (typeof text !== 'string' || text.includes('<mark') || text.includes('bg-yellow-200')) return text
+    // If this is post.content, ignore the first line
+    if (isContent) {
+      const lines = text.split(/\r?\n/)
+      lines.shift() // remove first line
+      text = lines.join(' ')
+    }
+    // Lithuanian character equivalence map
+    const ltMap = {
+      a: 'aą', A: 'AĄ',
+      c: 'cč', C: 'CČ',
+      e: 'eęė', E: 'EĘĖ',
+      i: 'iį', I: 'IĮ',
+      s: 'sš', S: 'SŠ',
+      u: 'uųū', U: 'UŲŪ',
+      z: 'zž', Z: 'ZŽ'
+    }
+    // Build regex pattern for Lithuanian-insensitive search
+    let pattern = ''
+    for (let ch of term) {
+      pattern += `[${ltMap[ch] || ltMap[ch.toLowerCase()] || ch}]`
+    }
+    // Remove duplicate characters in brackets
+    pattern = pattern.replace(/\[([^\]]+)\]/g, (m, chars) => {
+      return '[' + Array.from(new Set(chars.split(''))).join('') + ']'
+    })
+    const regex = new RegExp(pattern, 'gi')
+
+    // Find first match for snippet
+    const match = regex.exec(text)
+    if (match) {
+      const idx = match.index
+      // Show more context: 50 chars before, 100 after
+      const start = Math.max(0, idx - 50)
+      const end = Math.min(text.length, idx + 100)
+      let snippet = (start > 0 ? '... ' : '') + text.slice(start, end) + (end < text.length ? ' ...' : '')
+      // Highlight all matches in the snippet
+      const highlighted = snippet.replace(regex, (m) => `<mark class=\"bg-yellow-200 text-green-900 px-0.5 rounded\">${m}</mark>`)
+      return <span dangerouslySetInnerHTML={{ __html: highlighted }} />
+    }
+    // If no match, return original text
+    return text
   }
 
   return (
@@ -181,21 +247,21 @@ function SearchModal({ isOpen, onClose }) {
                           )}
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-gray-800 line-clamp-1">
-                              {post.title}
+                              {highlightText(post.title, query)}
                             </h4>
                             <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-                              {post.excerpt}
+                              {highlightText(post.content, query, true)}
                             </p>
                             <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                              <span>{post.category}</span>
+                              <span>{highlightText(post.category, query)}</span>
                               {post.subcategory && (
                                 <>
                                   <span>→</span>
-                                  <span>{post.subcategory}</span>
+                                  <span>{highlightText(post.subcategory, query)}</span>
                                 </>
                               )}
                               <span>•</span>
-                              <span>{post.author}</span>
+                              <span>{highlightText(post.author, query)}</span>
                             </div>
                           </div>
                         </div>
@@ -206,19 +272,20 @@ function SearchModal({ isOpen, onClose }) {
               )}
 
               {/* No results */}
-              {results.posts.length === 0 && results.categories.length === 0 && (
-                <div className="p-8 text-center">
-                  <div className="text-gray-400 mb-4">
-                    <Search className="w-12 h-12 mx-auto" />
+              {!loading && !error && query.trim().length >= 2 &&
+                results.posts.length === 0 && results.categories.length === 0 && (
+                  <div className="p-8 text-center">
+                    <div className="text-gray-400 mb-4">
+                      <Search className="w-12 h-12 mx-auto" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">
+                      Nieko nerasta
+                    </h3>
+                    <p className="text-gray-500">
+                      Bandykite kitus paieškos žodžius arba naršykite kategorijas
+                    </p>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">
-                    Nieko nerasta
-                  </h3>
-                  <p className="text-gray-500">
-                    Bandykite kitus paieškos žodžius arba naršykite kategorijas
-                  </p>
-                </div>
-              )}
+                )}
             </>
           )}
 
@@ -243,4 +310,3 @@ function SearchModal({ isOpen, onClose }) {
 }
 
 export default SearchModal
-

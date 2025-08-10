@@ -3,71 +3,36 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Clock, Tag, Share2, BookOpen } from 'lucide-react'
 import PostCard from './components/PostCard'
 import { InArticleAd, DisplayAd } from './components/GoogleAds'
-import { getMockPostByTitle, getMockPostsByCategory } from './data/mock-posts'
+import { getMockPostsByCategory } from './data/mock-posts'
+import { usePost } from './hooks/usePost'
 
 function PostPage() {
   const { postTitle } = useParams()
   const navigate = useNavigate()
-  const [post, setPost] = useState(null)
   const [relatedPosts, setRelatedPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { post, loading, error } = usePost(postTitle)
 
   useEffect(() => {
-    async function fetchPost() {
-      setLoading(true)
-      setError(null)
-      try {
-        // Try to fetch from API first
-        const response = await fetch(`/.netlify/functions/get-post?title=${encodeURIComponent(postTitle)}`)
-        const data = await response.json()
-        if (data.success) {
-          setPost(data.post)
-          // Fetch related posts after main post is loaded
-          fetchRelatedPosts(data.post)
-        } else {
-          // Fallback to mock data for local development
-          const mockPost = getMockPostByTitle(postTitle)
-          if (mockPost) {
-            setPost(mockPost)
-            fetchRelatedPosts(mockPost)
-          } else {
-            setError('Post not found')
-          }
-        }
-      } catch (err) {
-        // Fallback to mock data for local development
-        const mockPost = getMockPostByTitle(postTitle)
-        if (mockPost) {
-          setPost(mockPost)
-          fetchRelatedPosts(mockPost)
-        } else {
-          setError('Klaida gaunant straipsnį')
-        }
-      } finally {
-        setLoading(false)
-      }
+    if (post) {
+      fetchRelatedPosts(post)
     }
-    async function fetchRelatedPosts(post) {
-      if (!post || !post.category) return setRelatedPosts([])
-      try {
-        const res = await fetch(`/.netlify/functions/get-posts?category=${encodeURIComponent(post.category)}&limit=4`)
-        const data = await res.json()
-        if (data.success && Array.isArray(data.posts)) {
-          setRelatedPosts(data.posts.filter(p => p.id !== post.id).slice(0, 3))
-        } else {
-          // Fallback to mock data
-          const mockRelated = getMockPostsByCategory(post.category).filter(p => p.id !== post.id).slice(0, 3)
-          setRelatedPosts(mockRelated)
-        }
-      } catch (err) {
-        // Fallback to mock data
-        const mockRelated = getMockPostsByCategory(post.category).filter(p => p.id !== post.id).slice(0, 3)
-        setRelatedPosts(mockRelated)
+    // eslint-disable-next-line
+  }, [post])
+
+  async function fetchRelatedPosts(post) {
+    if (!post || !post.category) return
+    try {
+      const res = await fetch(`/.netlify/functions/get-posts?category=${encodeURIComponent(post.category)}&limit=4`)
+      const data = await res.json()
+      if (data.success && Array.isArray(data.posts)) {
+        setRelatedPosts(data.posts.filter(p => p.id !== post.id))
+      } else {
+        setRelatedPosts([])
       }
+    } catch {
+      setRelatedPosts([])
     }
-    fetchPost()
-  }, [postTitle])
+  }
 
   if (loading) {
     return <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">Kraunama...</div>
