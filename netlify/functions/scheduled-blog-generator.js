@@ -1,4 +1,3 @@
-// netlify/functions/scheduled-blog-generator.js
 import OpenAI from 'openai';
 import { neon } from '@netlify/neon';
 import { categoryMapping } from '../../src/data/category-mapping.js';

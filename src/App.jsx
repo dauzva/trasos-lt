@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import CategoryPage from './CategoryPage'
 import PostPage from './PostPage'
 import RecentPosts from './components/RecentPosts'
+import SearchModal from './components/SearchModal'
 import { Menu, X, Search, Leaf, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
 import { DropdownMenu } from './components/Navigation'
@@ -67,6 +68,7 @@ function MobileMenu({ isOpen, onClose }) {
 function App() {
   const [openDropdown, setOpenDropdown] = useState(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchModalOpen, setSearchModalOpen] = useState(false)
 
   const handleDropdownToggle = (title, shouldOpen) => {
     setOpenDropdown(shouldOpen ? title : null)
@@ -109,7 +111,12 @@ function App() {
               </nav>
               {/* Search and Mobile Menu */}
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="hidden sm:flex items-center gap-2"
+                  onClick={() => setSearchModalOpen(true)}
+                >
                   <Search size={16} />
                   Paieška
                 </Button>
@@ -132,6 +139,12 @@ function App() {
         <MobileMenu
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
+        />
+        
+        {/* Search Modal */}
+        <SearchModal
+          isOpen={searchModalOpen}
+          onClose={() => setSearchModalOpen(false)}
         />
         {/* Main Content */}
         <Routes>

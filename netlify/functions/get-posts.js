@@ -1,4 +1,3 @@
-// netlify/functions/get-posts.js
 import { neon } from '@netlify/neon';
 
 // Initialize Neon client
