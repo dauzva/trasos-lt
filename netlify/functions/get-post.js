@@ -6,22 +6,21 @@ const sql = neon();
 export default async function handler(event) {
   try {
     const url = new URL(event.rawUrl || event.url, `https://${event.headers.host}`);
-    const postId = url.searchParams.get('id');
-    if (!postId) {
+    const postTitle = url.searchParams.get('title');
+    if (!postTitle) {
       return new Response(JSON.stringify({
         success: false,
-        error: 'Post ID is required'
+        error: 'Post title is required'
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
-    console.log(`Fetching post with ID: ${postId}`);
-    const result = await sql`
-      SELECT * FROM posts
-      WHERE id = ${postId}
-    `;
-    if (result.length === 0) {
+    console.log(`Fetching post with title: ${postTitle}`);
+    // Query all posts and match in JS for full transliteration compatibility
+    const result = await sql`SELECT * FROM posts`;
+    const post = result.find(p => kebabTitle(p.title) === postTitle);
+    if (!post) {
       return new Response(JSON.stringify({
         success: false,
         error: 'Post not found'
@@ -30,7 +29,6 @@ export default async function handler(event) {
         headers: { 'Content-Type': 'application/json' }
       });
     }
-    const post = result[0];
     const transformedPost = {
       id: post.id,
       title: post.title, // use correct column
@@ -60,4 +58,35 @@ export default async function handler(event) {
       headers: { 'Content-Type': 'application/json' }
     });
   }
+}
+
+// Helper to convert Lithuanian characters to ASCII
+function ltToAscii(str) {
+  return str
+    .replace(/ą/g, 'a')
+    .replace(/č/g, 'c')
+    .replace(/ę/g, 'e')
+    .replace(/ė/g, 'e')
+    .replace(/į/g, 'i')
+    .replace(/š/g, 's')
+    .replace(/ų/g, 'u')
+    .replace(/ū/g, 'u')
+    .replace(/ž/g, 'z')
+    .replace(/Ą/g, 'A')
+    .replace(/Č/g, 'C')
+    .replace(/Ę/g, 'E')
+    .replace(/Ė/g, 'E')
+    .replace(/Į/g, 'I')
+    .replace(/Š/g, 'S')
+    .replace(/Ų/g, 'U')
+    .replace(/Ū/g, 'U')
+    .replace(/Ž/g, 'Z');
+}
+
+function kebabTitle(title) {
+  return ltToAscii(title)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 }

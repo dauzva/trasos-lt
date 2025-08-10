@@ -2,6 +2,35 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Calendar, User, Clock, ArrowRight } from 'lucide-react'
 
+// Helper to convert Lithuanian characters to ASCII
+const ltToAscii = (str) => str
+  .replace(/ą/g, 'a')
+  .replace(/č/g, 'c')
+  .replace(/ę/g, 'e')
+  .replace(/ė/g, 'e')
+  .replace(/į/g, 'i')
+  .replace(/š/g, 's')
+  .replace(/ų/g, 'u')
+  .replace(/ū/g, 'u')
+  .replace(/ž/g, 'z')
+  .replace(/Ą/g, 'A')
+  .replace(/Č/g, 'C')
+  .replace(/Ę/g, 'E')
+  .replace(/Ė/g, 'E')
+  .replace(/Į/g, 'I')
+  .replace(/Š/g, 'S')
+  .replace(/Ų/g, 'U')
+  .replace(/Ū/g, 'U')
+  .replace(/Ž/g, 'Z');
+
+// Helper to convert title to kebab-case
+const kebabTitle = (title) =>
+  ltToAscii(title)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+
 function PostCard({ post, showImage = true, size = 'default' }) {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('lt-LT', {
@@ -34,7 +63,7 @@ function PostCard({ post, showImage = true, size = 'default' }) {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <Link to={`/post/${post.id}`}>
+            <Link to={`/post/${kebabTitle(post.title)}`}>
               <h3 className="text-lg font-semibold text-gray-800 mb-2 hover:text-green-600 transition-colors line-clamp-2">
                 {post.title}
               </h3>
@@ -90,7 +119,7 @@ function PostCard({ post, showImage = true, size = 'default' }) {
           )}
         </div>
 
-        <Link to={`/post/${post.id}`}>
+        <Link to={`/post/${kebabTitle(post.title)}`}>
           <h3 className="text-xl font-semibold text-gray-800 mb-3 hover:text-green-600 transition-colors line-clamp-2 group-hover:text-green-600">
             {post.title}
           </h3>
@@ -119,7 +148,7 @@ function PostCard({ post, showImage = true, size = 'default' }) {
           </div>
 
           <Link 
-            to={`/post/${post.id}`}
+            to={`/post/${kebabTitle(post.title)}`}
             className="flex items-center gap-1 text-green-600 hover:text-green-700 font-medium text-sm group-hover:gap-2 transition-all duration-200"
           >
             <span>Skaityti</span>
@@ -132,4 +161,3 @@ function PostCard({ post, showImage = true, size = 'default' }) {
 }
 
 export default PostCard
-

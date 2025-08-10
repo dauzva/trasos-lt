@@ -3,10 +3,10 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Clock, Tag, Share2, BookOpen } from 'lucide-react'
 import PostCard from './components/PostCard'
 import { InArticleAd, DisplayAd } from './components/GoogleAds'
-import { getMockPostById, getMockPostsByCategory } from './data/mock-posts'
+import { getMockPostByTitle, getMockPostsByCategory } from './data/mock-posts'
 
 function PostPage() {
-  const { postId } = useParams()
+  const { postTitle } = useParams()
   const navigate = useNavigate()
   const [post, setPost] = useState(null)
   const [relatedPosts, setRelatedPosts] = useState([])
@@ -19,7 +19,7 @@ function PostPage() {
       setError(null)
       try {
         // Try to fetch from API first
-        const response = await fetch(`/.netlify/functions/get-post?id=${postId}`)
+        const response = await fetch(`/.netlify/functions/get-post?title=${encodeURIComponent(postTitle)}`)
         const data = await response.json()
         if (data.success) {
           setPost(data.post)
@@ -27,7 +27,7 @@ function PostPage() {
           fetchRelatedPosts(data.post)
         } else {
           // Fallback to mock data for local development
-          const mockPost = getMockPostById(postId)
+          const mockPost = getMockPostByTitle(postTitle)
           if (mockPost) {
             setPost(mockPost)
             fetchRelatedPosts(mockPost)
@@ -37,7 +37,7 @@ function PostPage() {
         }
       } catch (err) {
         // Fallback to mock data for local development
-        const mockPost = getMockPostById(postId)
+        const mockPost = getMockPostByTitle(postTitle)
         if (mockPost) {
           setPost(mockPost)
           fetchRelatedPosts(mockPost)
@@ -67,7 +67,7 @@ function PostPage() {
       }
     }
     fetchPost()
-  }, [postId])
+  }, [postTitle])
 
   if (loading) {
     return <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">Kraunama...</div>

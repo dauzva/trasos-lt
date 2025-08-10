@@ -101,6 +101,35 @@ Organinės trąšos gali būti puikus pasirinkimas vaismedžiams. Išnagrinėjam
   }
 ];
 
+// Helper to convert Lithuanian characters to ASCII
+const ltToAscii = (str) => str
+  .replace(/ą/g, 'a')
+  .replace(/č/g, 'c')
+  .replace(/ę/g, 'e')
+  .replace(/ė/g, 'e')
+  .replace(/į/g, 'i')
+  .replace(/š/g, 's')
+  .replace(/ų/g, 'u')
+  .replace(/ū/g, 'u')
+  .replace(/ž/g, 'z')
+  .replace(/Ą/g, 'A')
+  .replace(/Č/g, 'C')
+  .replace(/Ę/g, 'E')
+  .replace(/Ė/g, 'E')
+  .replace(/Į/g, 'I')
+  .replace(/Š/g, 'S')
+  .replace(/Ų/g, 'U')
+  .replace(/Ū/g, 'U')
+  .replace(/Ž/g, 'Z');
+
+// Helper to convert title to kebab-case
+const kebabTitle = (title) =>
+  ltToAscii(title)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
 // Mock function to get post by ID
 export const getMockPostById = (postId) => {
   return mockPosts.find(post => post.id === parseInt(postId));
@@ -114,3 +143,7 @@ export const getMockPostsByCategory = (category) => {
   );
 };
 
+// Mock function to get post by kebab-case title
+export const getMockPostByTitle = (postTitle) => {
+  return mockPosts.find(post => kebabTitle(post.title) === postTitle);
+};

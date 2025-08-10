@@ -109,6 +109,35 @@ function RecentPosts() {
     }
   };
 
+  // Helper to convert Lithuanian characters to ASCII
+  const ltToAscii = (str) => str
+    .replace(/ą/g, 'a')
+    .replace(/č/g, 'c')
+    .replace(/ę/g, 'e')
+    .replace(/ė/g, 'e')
+    .replace(/į/g, 'i')
+    .replace(/š/g, 's')
+    .replace(/ų/g, 'u')
+    .replace(/ū/g, 'u')
+    .replace(/ž/g, 'z')
+    .replace(/Ą/g, 'A')
+    .replace(/Č/g, 'C')
+    .replace(/Ę/g, 'E')
+    .replace(/Ė/g, 'E')
+    .replace(/Į/g, 'I')
+    .replace(/Š/g, 'S')
+    .replace(/Ų/g, 'U')
+    .replace(/Ū/g, 'U')
+    .replace(/Ž/g, 'Z');
+
+  // Helper to convert title to kebab-case
+  const kebabTitle = (title) =>
+    ltToAscii(title)
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+
   if (loading) {
     return (
       <div className="mb-12">
@@ -217,7 +246,7 @@ function RecentPosts() {
                 {post.excerpt || truncateContent(post.content)}
               </p>
               <Link
-                to={`/post/${post.id}`}
+                to={`/post/${kebabTitle(post.title)}`}
                 className="text-green-600 hover:text-green-700 font-medium text-sm flex items-center gap-1"
               >
                 Skaityti daugiau
@@ -232,4 +261,3 @@ function RecentPosts() {
 }
 
 export default RecentPosts;
-

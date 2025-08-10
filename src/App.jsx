@@ -244,7 +244,7 @@ function App() {
           } />
           <Route path="/:mainCategory/:subCategory" element={<CategoryPage />} />
           <Route path="/:mainCategory/:subCategory/:subSubCategory" element={<CategoryPage />} />
-          <Route path="/post/:postId" element={<PostPage />} />
+          <Route path="/post/:postTitle" element={<PostPage />} />
         </Routes>
         {/* Footer */}
         <footer className="bg-gray-800 text-white py-8 mt-12">

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw, Calendar, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function BlogPosts() {
   const [posts, setPosts] = useState([]);
@@ -99,6 +100,34 @@ function BlogPosts() {
       .replace(/\n/gim, '<br>');
   };
 
+  // Helper to convert Lithuanian characters to ASCII
+  const ltToAscii = (str) => str
+    .replace(/ą/g, 'a')
+    .replace(/č/g, 'c')
+    .replace(/ę/g, 'e')
+    .replace(/ė/g, 'e')
+    .replace(/į/g, 'i')
+    .replace(/š/g, 's')
+    .replace(/ų/g, 'u')
+    .replace(/ū/g, 'u')
+    .replace(/ž/g, 'z')
+    .replace(/Ą/g, 'A')
+    .replace(/Č/g, 'C')
+    .replace(/Ę/g, 'E')
+    .replace(/Ė/g, 'E')
+    .replace(/Į/g, 'I')
+    .replace(/Š/g, 'S')
+    .replace(/Ų/g, 'U')
+    .replace(/Ū/g, 'U')
+    .replace(/Ž/g, 'Z');
+
+  const kebabTitle = (title) =>
+    ltToAscii(title)
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -168,29 +197,36 @@ function BlogPosts() {
         </div>
       ) : (
         <div className="space-y-6">
-          {posts.map((post) => (
-            <Card key={post.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-xl text-gray-800">{post.title}</CardTitle>
-                <CardDescription className="flex items-center gap-4 text-sm text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {formatDate(post.timestamp)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    {post.author}
-                  </span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div 
-                  className="prose prose-sm max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
-                />
-              </CardContent>
-            </Card>
-          ))}
+          {posts.map((post) => {
+            const kebab = kebabTitle(post.title);
+            return (
+              <Card key={post.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-xl text-gray-800">
+                    <Link to={`/post/${kebab}`} className="hover:underline text-green-700">
+                      {post.title}
+                    </Link>
+                  </CardTitle>
+                  <CardDescription className="flex items-center gap-4 text-sm text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      {formatDate(post.timestamp)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <User className="h-4 w-4" />
+                      {post.author}
+                    </span>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div
+                    className="prose prose-sm max-w-none text-gray-700"
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
+                  />
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
@@ -198,4 +234,3 @@ function BlogPosts() {
 }
 
 export default BlogPosts;
-
